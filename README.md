@@ -1,2 +1,2 @@
 # MrDatabase
-Connect PyQT and a Database with ease
+Connect PyQT and SQLite with ease
