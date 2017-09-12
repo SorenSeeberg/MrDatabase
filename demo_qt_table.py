@@ -1,5 +1,5 @@
-from database.database import Database
-from database.database import LogLevel
+from database.mrdatabase import MrDatabase
+from database.mrdatabase import LogLevel
 from table_schema_examples import City, Person
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
 from qt_models.local_table_model import LocalTableModel
@@ -9,7 +9,7 @@ import os
 
 class DatabaseTableWidget(QtWidgets.QWidget):
 
-    def __init__(self, database: Database):
+    def __init__(self, database: MrDatabase):
         super().__init__()
 
         self.database_table_model: LocalTableModel = LocalTableModel(database.select_records(City), database)
@@ -88,8 +88,8 @@ class DatabaseTableWidget(QtWidgets.QWidget):
 
 if __name__ == '__main__':
 
-    Database.logging(level=LogLevel.info)
-    db = Database(os.path.abspath(os.path.join(__file__, os.pardir)), 'test.db')
+    MrDatabase.logging(level=LogLevel.info)
+    db = MrDatabase(os.path.abspath(os.path.join(__file__, os.pardir)), 'test.db')
 
     # database.drop_table(City)
     # database.create_table(City)

@@ -14,8 +14,9 @@ import json
 import logging
 import sqlite3 as sqlite
 import hashlib
-from typing import Dict, Generator, List
+from typing import Dict, Generator, List, Tuple
 from database.data_formatting import DataFormatting
+from database.column import Column
 
 
 class Table:
@@ -24,7 +25,7 @@ class Table:
     __join_tables__: Dict = dict()
 
     @classmethod
-    def get_schema_columns(cls) -> Generator['Column', None, None]:
+    def get_schema_columns(cls) -> Generator[Column, None, None]:
         """ Returns the Column objects of a table. Using self.get_table_property_names to guarantee property order """
 
         return (getattr(cls, prop_name) for prop_name in cls.get_class_column_names())
@@ -102,15 +103,19 @@ class Table:
                                                                         'column': column}
 
     @classmethod
-    def table_schema_validation(cls) -> bool:
+    def table_schema_validation(cls) -> Tuple:
+        """ Validates a table class for errors. Returns a tuple of the format Tuple[bool, List[str]] """
 
         no_errors_found: bool = True
         instance: Table.__subclasses__ = None
+        errors: List = [no_errors_found, list()]
 
         try:
             instance = cls()
         except AttributeError as e:
-            logging.critical('Class level attribute of wrong type encountered. Column expected: %s' % str(e))
+            msg = 'Class level attribute of wrong type encountered. Column expected: %s' % str(e)
+            logging.critical(msg)
+            errors[1].append(msg)
             no_errors_found = False
 
         if instance:
@@ -122,7 +127,9 @@ class Table:
                 attrib = getattr(cls, column_name)
 
                 if not str(type(attrib)).endswith(".Column'>"):
-                    logging.critical('class members not named __member_name__ must be of type -> Column: %s Type: %s' % (column_name, type(attrib)))
+                    msg = 'Class members not named __member_name__ must be of type -> Column: %s Type: %s' % (column_name, type(attrib))
+                    logging.critical(msg)
+                    errors[1].append(msg)
                     no_errors_found = False
 
             if column_names != instance_att_names:
@@ -130,14 +137,20 @@ class Table:
                 missing_attributes = list(set(column_names) - set(instance_att_names))
 
                 if unexpected_attributes:
-                    logging.critical('Unexpected instance attributes: %s' % str(unexpected_attributes))
+                    msg = 'Unexpected instance attributes: %s' % str(unexpected_attributes)
+                    logging.critical(msg)
+                    errors[1].append(msg)
                     no_errors_found = False
 
                 if missing_attributes:
-                    logging.critical('Missing instance attributes: %s' % str(missing_attributes))
+                    msg = 'Missing instance attributes: %s' % str(missing_attributes)
+                    logging.critical(msg)
+                    errors[1].append(msg)
                     no_errors_found = False
 
-        return no_errors_found
+        errors[0] = no_errors_found
+
+        return tuple(errors)
 
     @staticmethod
     def read_blob_file(data):
@@ -160,7 +173,7 @@ class Table:
         return repr_string
 
     @property
-    def table_name(self):
+    def table_name(self) -> str:
         return self.__table_name__
 
     def finalize_init(self):
@@ -171,6 +184,12 @@ class Table:
         for column in self.get_schema_columns():
 
             if column.default_value is None:
+                continue
+
+            try:
+                if getattr(self, column.property_name):
+                    continue
+            except TypeError:
                 continue
 
             setattr(self, column.property_name, column.default_value)

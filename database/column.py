@@ -34,6 +34,7 @@ class Column:
                  default_value=None,
                  pk: bool=False,
                  fk=None,
+                 auto_increment=False,
                  unique=False,
                  not_null=False,
                  display_name: str=None):
@@ -44,6 +45,7 @@ class Column:
         self.data_type_var = data_type_var
         self.default_value = default_value
         self.pk = pk
+        self.auto_increment = auto_increment
 
         if fk is not None:
             self.fk = True

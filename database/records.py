@@ -19,7 +19,7 @@ class Records:
     def __len__(self) -> int:
         return len(self.__records__)
 
-    def __add__(self, other: List['Table.__subclasses__']):
+    def __add__(self, other: List[Table.__subclasses__]):
         self.__records__ += other
 
     def __sub__(self, other):
@@ -27,7 +27,6 @@ class Records:
 
     def sort(self, attribute_index: int, reverse: bool=False) -> None:
 
-        # attr: str = list(self.__records__[0].get_class_column_names())[attribute_index]
         if self.__records__:
             records = self.__records__
             attr: str = self.__table_class__.get_attribute_name_by_index(attribute_index)
@@ -51,22 +50,14 @@ class Records:
     def index(self, value: Any, start: int=0, stop: int=None) -> int:
         return self.__records__.index(value, start, stop)
 
-    # def raw_data(self, update=True) -> List[List['Table']]:
-    #
-    #     if update:
-    #         self.__raw_data__.clear()
-    #         self.__raw_data__ = [list(record.get_values()) for record in self.__records__]
-    #
-    #     return self.__raw_data__
-
     def max(self):
-        pass
+        raise NotImplementedError
 
     def min(self):
-        pass
+        raise NotImplementedError
 
     def first(self):
-        pass
+        raise NotImplementedError
 
     def last(self):
-        pass
+        raise NotImplementedError
