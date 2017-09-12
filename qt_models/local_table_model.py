@@ -1,13 +1,13 @@
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
-from database.database import Database
-from database.database import database_connection
+from database.mrdatabase import MrDatabase
+from database.mrdatabase import database_connection
 from database.table import Table
 from database.records import Records
 
 
 class LocalTableModel(QtCore.QAbstractTableModel):
 
-    def __init__(self, records, database: Database, parent=None):
+    def __init__(self, records, database: MrDatabase, parent=None):
         super().__init__(parent)
         self.__database__ = database
         self.__records__: Records = records
@@ -15,7 +15,7 @@ class LocalTableModel(QtCore.QAbstractTableModel):
         self.__headers__ = self.__records__[0].get_column_display_names()
 
     @property
-    def database(self) -> Database:
+    def database(self) -> MrDatabase:
         return self.__database__
 
     def rowCount(self, parent=None, *args, **kwargs):
