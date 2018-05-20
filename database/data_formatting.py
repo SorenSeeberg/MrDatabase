@@ -33,13 +33,13 @@ class DataFormatting:
         return str(uuid.uuid4())
 
     @staticmethod
-    def value_to_string(column_object, value, default_value=False):
+    def value_to_string(column_object, value, default=False):
 
-        if default_value:
-            value = column_object.default_value
+        if default:
+            value = column_object.default
 
         if column_object.data_type.startswith('CHAR') or column_object.data_type.startswith(
                 'VARCHAR') or column_object.data_type == Column.data_types.datetime:
-            return "'%s'" % value
+            return f"'{value}'"
         else:
-            return "%s" % value
+            return f'{value}'

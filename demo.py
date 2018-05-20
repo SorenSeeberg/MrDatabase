@@ -52,16 +52,34 @@ if __name__ == '__main__':
     # If you use .get_next_id(), remember to insert your record before using it again.
     # Alternatively you can increment manually
     print('\nCreation and Insertion of Records\n------------------------------------------')
-    city_1 = City(id=mr_database.get_next_id("City", "id"), postal_code=8300, city_name='Odder')
+
+    city_1 = City()
+    city_1.id = mr_database.get_next_id("City", "id")
+    city_1.postal_code = 8300
+    city_1.city_name = 'Odder'
+
     print('City_1: %s' % city_1)
-    person_1 = Person(id=mr_database.get_next_id("Person", "id"), firstName='Albert', lastName='Einstein', cityId=city_1.id)
+    person_1 = Person()
+    person_1.id = mr_database.get_next_id("Person", "id")
+    person_1.firstName = 'Albert'
+    person_1.lastName = 'Einstein'
+    person_1.cityId = city_1.id
+
     print('Person_1: %s' % person_1)
     mr_database.insert_record(city_1)
     mr_database.insert_record(person_1)
 
-    city_2 = City(id=mr_database.get_next_id("City", "id"), postal_code=8660, city_name='Skanderborg')
+    city_2 = City()
+    city_2.id = mr_database.get_next_id("City", "id")
+    city_2.postal_code = 8660
+    city_2.city_name = 'Skanderborg'
+
     mr_database.insert_record(city_2)
-    person_2 = Person(id=mr_database.get_next_id("Person", "id"), firstName='Niels', lastName='Bohr', cityId=city_2.id)
+    person_2 = Person()
+    person_2.id = mr_database.get_next_id("Person", "id")
+    person_2.firstName = 'Niels'
+    person_2.lastName = 'Bohr'
+    person_2.cityId = city_2.id
 
     # Changing cityName to boston and updating the record
     city_2.cityName = 'Boston'

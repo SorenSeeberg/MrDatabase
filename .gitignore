@@ -1,0 +1,6 @@
+test.db
+test_functionality.db
+mr_database.log
+.idea/*
+__pycache__/*
+*/__pycache__/*

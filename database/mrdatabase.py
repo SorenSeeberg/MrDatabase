@@ -10,7 +10,7 @@ from database.table import Table
 from database.records import Records
 
 # from flask import Markup
-VERSION = '0.9.0 Alpha'
+VERSION = '0.9.1 Alpha'
 
 
 class LogLevel:
@@ -117,9 +117,9 @@ class MrDatabase:
         if condition is None:
             condition = record_object.default_update_condition()
 
-        sql = "DELETE FROM %s WHERE %s;" % (record_object.__table_name__, condition)
+        sql = f'DELETE FROM {record_object.get_table_name()} WHERE {condition};'
 
-        logging.info("DELETE RECORD: %s" % sql)
+        logging.info(f'DELETE RECORD: {sql}')
 
         if commit:
             self.__delete_record__(sql)
@@ -132,18 +132,18 @@ class MrDatabase:
         if condition is None:
             condition = record_object.default_update_condition()
 
-        table_name = record_object.__table_name__
+        table_name = record_object.get_table_name()
         attributes = record_object.get_class_column_names()
         values = list(record_object.get_values())
-        update = ", ".join("%s=?" % attrib for attrib in attributes)
+        update = ", ".join(f'{attrib}=?' for attrib in attributes)
 
         condition_params = condition.split('=')
         condition_string = "%s=?" % condition_params[0].strip()
         value_list = values + [int(condition_params[1].strip())]
 
-        sql = "UPDATE %s SET %s WHERE %s;" % (table_name, update, condition_string)
+        sql = f'UPDATE {table_name} SET {update} WHERE {condition_string};'
 
-        logging.info("UPDATE RECORD: %s %s" % (sql, value_list))
+        logging.info(f'UPDATE RECORD: {sql} {value_list}')
 
         if commit:
             self.__update_record__(sql, value_list)
@@ -153,16 +153,16 @@ class MrDatabase:
     def insert_record(self, record_object: Table.__subclasses__, commit: bool=True) -> str:
         """Constructing the sql for inserting a record"""
 
-        table_name = record_object.__table_name__
+        table_name = record_object.get_table_name()
         attributes = list(record_object.get_class_column_names())
         values = list(record_object.get_values())
 
         values_string = ", ".join(len(attributes) * ['?'])
         attributes_string = ", ".join((str(attribute) for attribute in attributes))
 
-        sql = "INSERT INTO %s(%s) VALUES (%s);" % (table_name, attributes_string, values_string)
+        sql = f'INSERT INTO {table_name}({attributes_string}) VALUES ({values_string});'
 
-        logging.info("INSERT RECORD: %s %s" % (sql, values))
+        logging.info(f'INSERT RECORD: {sql} {values}')
 
         if commit:
             self.__insert_record__(sql, list(values))
@@ -174,11 +174,11 @@ class MrDatabase:
     def select_record(self, table_class: Table.__subclasses__, condition: str) -> Table.__subclasses__:
         """Constructing the sql for selecting a record"""
 
-        sql = "SELECT * FROM %s WHERE %s;" % (table_class.__table_name__, condition)
+        sql = f'SELECT * FROM {table_class.get_table_name()} WHERE {condition};'
 
         record = self.fetchone(sql)
 
-        logging.info("GET RECORD: %s" % sql)
+        logging.info(f'GET RECORD: {sql}')
 
         if record:
             data_type_instance = table_class()
@@ -190,7 +190,7 @@ class MrDatabase:
 
         sql_comps = list()
 
-        sql_comps.append("SELECT * FROM %s" % table_class.__table_name__)
+        sql_comps.append(f'SELECT * FROM {table_class.get_table_name()}')
 
         if condition is not None:
             sql_comps.append("WHERE %s" % condition)
@@ -206,16 +206,16 @@ class MrDatabase:
             logging.info(order_by)
             logging.info(order)
 
-            sql_comps.append('ORDER BY %s %s' % (order_by, order))
+            sql_comps.append(f'ORDER BY {order_by} {order}')
 
         if limit > 0:
-            sql_comps.append('LIMIT %s' % limit)
+            sql_comps.append(f'LIMIT {limit}')
 
         sql_comps.append(';')
 
         sql = ' '.join(sql_comps)
 
-        logging.info("GET RECORDS: %s" % sql)
+        logging.info(f'GET RECORDS: {sql}')
 
         records = self.fetchall(sql)
 
@@ -225,7 +225,7 @@ class MrDatabase:
 
             return data_type_instance
 
-        records = Records([create_data_type(table_class, record) for record in records])
+        records: Records = Records([create_data_type(table_class, record) for record in records])
 
         return records
 
@@ -233,7 +233,7 @@ class MrDatabase:
 
         try:
             with database_connection(self, commit=False):
-                self.cur.execute("SELECT MAX(%s) FROM %s;" % (column_name, table_name))
+                self.cur.execute(f'SELECT MAX({column_name}) FROM {table_name};')
                 current_highest_id = int(self.cur.fetchone()[0])
                 return current_highest_id + 1
         except:

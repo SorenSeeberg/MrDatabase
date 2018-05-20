@@ -20,15 +20,22 @@ from database.column import Column
 
 
 class Table:
-    __table_name__ = None
     __join_table_definitions__: Dict = dict()
     __join_tables__: Dict = dict()
 
     @classmethod
-    def get_schema_columns(cls) -> Generator[Column, None, None]:
+    def get_table_name(cls) -> str:
+        return cls.__name__
+
+    @classmethod
+    def get_schema_columns_cls(cls) -> Generator[Column, None, None]:
+        """ Returns the Column objects of a table. Using self.get_table_property_names to guarantee property order """
+        return (getattr(cls, prop_name) for prop_name in cls.get_class_column_names())
+
+    def get_schema_columns(self) -> Generator[Column, None, None]:
         """ Returns the Column objects of a table. Using self.get_table_property_names to guarantee property order """
 
-        return (getattr(cls, prop_name) for prop_name in cls.get_class_column_names())
+        return (getattr(self.__class__, prop_name) for prop_name in self.get_class_column_names())
 
     @classmethod
     def get_class_column_names(cls) -> Generator[str, None, None]:
@@ -46,12 +53,12 @@ class Table:
         """ Constructs the needed sql statements to create a database table from a Table class """
 
         sql = list()
-        sql.append("CREATE TABLE IF NOT EXISTS %s(" % cls.__table_name__)
+        sql.append(f'CREATE TABLE IF NOT EXISTS {cls.get_table_name()}(')
 
         sql_properties = list()
         sql_foreign_keys = list()
 
-        for column in cls.get_schema_columns():
+        for column in cls.get_schema_columns_cls():
             property_components = list()
 
             property_components.append(column.property_name)
@@ -60,8 +67,8 @@ class Table:
             if column.pk:
                 property_components.append('PRIMARY KEY')
 
-            if column.default_value is not None:
-                property_components.append("DEFAULT %s" % DataFormatting.value_to_string(column, column.default_value, default_value=True))
+            if column.default is not None:
+                property_components.append(f'DEFAULT {DataFormatting.value_to_string(column, column.default, default=True)}')
 
             if column.unique:
                 property_components.append('UNIQUE')
@@ -75,10 +82,13 @@ class Table:
                 sql_properties.append(' '.join(property_components))
 
             if column.fk:
-                sql_foreign_keys.append('FOREIGN KEY (%s) REFERENCES %s(%s)' % (column.property_name, column.fk_table.__table_name__, column.fk_property))
+                sql_foreign_keys.append(f'FOREIGN KEY ({column.property_name}) '
+                                        f'REFERENCES {column.fk_table.get_table_name()}({column.fk_property})')
 
         sql.append(', \n'.join(sql_properties + sql_foreign_keys))
         sql.append(');')
+
+        print(' \n'.join(sql))
 
         return ' \n'.join(sql)
 
@@ -86,21 +96,7 @@ class Table:
     def __drop_table__(cls) -> str:
         """Constructs the needed sql statements to drop a database table from a Table class"""
 
-        return 'DROP TABLE IF EXISTS %s;' % cls.__table_name__
-
-    @classmethod
-    def __init_join_tables__(cls):
-
-        for column in cls.get_schema_columns():
-
-            if not column.fk:
-                continue
-
-            # todo : simplify the dict . . just the column is needed
-            cls.__join_table_definitions__[column.fk_table.__name__] = {'table_class': column.fk_table,
-                                                                        'fk': column.fk_property,
-                                                                        'property': column.property_name,
-                                                                        'column': column}
+        return f'DROP TABLE IF EXISTS {cls.get_table_name()};'
 
     @classmethod
     def table_schema_validation(cls) -> Tuple:
@@ -113,7 +109,7 @@ class Table:
         try:
             instance = cls()
         except AttributeError as e:
-            msg = 'Class level attribute of wrong type encountered. Column expected: %s' % str(e)
+            msg = f'Class level attribute of wrong type encountered. Column expected: {str(e)}'
             logging.critical(msg)
             errors[1].append(msg)
             no_errors_found = False
@@ -127,26 +123,27 @@ class Table:
                 attrib = getattr(cls, column_name)
 
                 if not str(type(attrib)).endswith(".Column'>"):
-                    msg = 'Class members not named __member_name__ must be of type -> Column: %s Type: %s' % (column_name, type(attrib))
+                    msg = f'Class members not named __member_name__ must be of ' \
+                          f'type -> Column: {column_name} Type: {type(attrib)}'
                     logging.critical(msg)
                     errors[1].append(msg)
                     no_errors_found = False
 
             if column_names != instance_att_names:
                 unexpected_attributes = list(set(instance_att_names) - set(column_names))
-                missing_attributes = list(set(column_names) - set(instance_att_names))
+                # missing_attributes = list(set(column_names) - set(instance_att_names))
 
                 if unexpected_attributes:
-                    msg = 'Unexpected instance attributes: %s' % str(unexpected_attributes)
+                    msg = f'Unexpected instance attributes: {str(unexpected_attributes)}'
                     logging.critical(msg)
                     errors[1].append(msg)
                     no_errors_found = False
 
-                if missing_attributes:
-                    msg = 'Missing instance attributes: %s' % str(missing_attributes)
-                    logging.critical(msg)
-                    errors[1].append(msg)
-                    no_errors_found = False
+                # if missing_attributes:
+                #     msg = 'Missing instance attributes: %s' % str(missing_attributes)
+                #     logging.critical(msg)
+                #     errors[1].append(msg)
+                #     no_errors_found = False
 
         errors[0] = no_errors_found
 
@@ -163,36 +160,48 @@ class Table:
         return md5
 
     def __init__(self):
-        pass
+        self.__setup_default_value__()
+        self.__init_join_tables__()
+
+    def __setup_default_value__(self):
+        for column in self.get_schema_columns():
+
+            # if column.default is not None:
+            #     print(f'{column} : {column.default}')
+
+            # if column.default is None:
+            #     continue
+
+            # try:
+            #     if getattr(self, column.property_name):
+            #         continue
+            # except TypeError:
+            #     continue
+
+            setattr(self, column.property_name, column.default)
+
+    def __init_join_tables__(self):
+
+        for column in self.get_schema_columns():
+
+            if not column.fk:
+                continue
+
+            # todo : simplify the dict . . just the column is needed
+            self.__join_table_definitions__[column.fk_table.__name__] = {'table_class': column.fk_table,
+                                                                         'fk': column.fk_property,
+                                                                         'property': column.property_name,
+                                                                         'column': column}
 
     def __getitem__(self, item):
         return getattr(self, item)
 
     def __repr__(self) -> str:
-        repr_string = '%s { %s }' % (self.__table_name__, ", ".join(["%s : %s" % (a, b) for a, b in zip(list(self.get_class_column_names()), list(self.get_values()))]))
+        x = (f'{a} : {b}' for a, b in zip(list(self.get_class_column_names()), list(self.get_values())))
+
+        repr_string = f'{self.get_table_name()} ({", ".join(x)})'
+
         return repr_string
-
-    @property
-    def table_name(self) -> str:
-        return self.__table_name__
-
-    def finalize_init(self):
-        self.__init_join_tables__()
-        self.__setup_default_value__()
-
-    def __setup_default_value__(self):
-        for column in self.get_schema_columns():
-
-            if column.default_value is None:
-                continue
-
-            try:
-                if getattr(self, column.property_name):
-                    continue
-            except TypeError:
-                continue
-
-            setattr(self, column.property_name, column.default_value)
 
     def get_column_display_names(self) -> List[str]:
         """ Returns the display names of each column if they exist. Fallback is attribute name """
@@ -248,7 +257,7 @@ class Table:
     def default_update_condition(self) -> str:
         """ Returning sql definition of default update condition """
 
-        return 'id = %s' % self.id
+        return f'id = {self.id}'
 
     def from_sql_record(self, sql_row: List) -> None:
         """ Sets the record values from a sql record of type list """
@@ -283,7 +292,7 @@ class Table:
         """ Resets the values of the instance to the defined default values of each Column """
 
         for column_name, column in zip(self.get_class_column_names(), self.get_schema_columns()):
-            setattr(self, column_name, column.default_value)
+            setattr(self, column_name, column.default)
 
     def from_json(self, json_string: str) -> None:
         """ Sets the record values from a json string """
@@ -291,14 +300,14 @@ class Table:
         json_object = json.loads(json_string)
 
         for column_name, column in zip(self.get_class_column_names(), self.get_schema_columns()):
-            setattr(self, column_name, json_object.get(column_name, column.default_value))
+            setattr(self, column_name, json_object.get(column_name, column.default))
 
     def to_json(self) -> str:
         """ Returns a json string containing the table name, column names and values """
 
         json_data = dict()
 
-        json_data["table_name"] = self.__table_name__
+        json_data["table_name"] = self.get_table_name()
         json_data["headers"] = list(self.get_class_column_names())
 
         for prop in self.get_schema_columns():

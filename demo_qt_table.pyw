@@ -1,7 +1,7 @@
 from database.mrdatabase import MrDatabase
 from database.mrdatabase import LogLevel
 from table_schema_examples import City, Person
-from PyQt5 import QtGui, QtCore, QtWidgets, uic
+from PySide2 import QtGui, QtCore, QtWidgets
 from qt_models.local_table_model import LocalTableModel
 import sys
 import os
@@ -60,11 +60,11 @@ class DatabaseTableWidget(QtWidgets.QWidget):
         self.button_insert.clicked.connect(self.on_click_insert_rows)
         self.button_delete.clicked.connect(self.on_click_remove_rows)
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def on_click_insert_rows(self):
         self.database_table_model.insertRows(0, 1)
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def on_click_remove_rows(self):
         """Continuous or single selection expected"""
 
@@ -95,9 +95,23 @@ if __name__ == '__main__':
     next_id = db.get_next_id('City', 'id')
 
     if next_id == 0:
-        db.insert_record(City(id=db.get_next_id('City', 'id'), postal_code=8300, city_name='Odder'))
-        db.insert_record(City(id=db.get_next_id('City', 'id'), postal_code=8660, city_name='Skanderborg'))
-        db.insert_record(City(id=db.get_next_id('City', 'id'), postal_code=2500, city_name='Valby'))
+        city1 = City()
+        city1.id = db.get_next_id('City', 'id')
+        city1.postalCode = 8300
+        city1.cityName = 'Odder'
+        db.insert_record(city1)
+
+        city2 = City()
+        city2.id = db.get_next_id('City', 'id')
+        city2.postalCode = 8660
+        city2.cityName = 'Skanderborg'
+        db.insert_record(city2)
+
+        city3 = City()
+        city3.id = db.get_next_id('City', 'id')
+        city3.postalCode = 2500
+        city3.cityName = 'Valby'
+        db.insert_record(city3)
 
     app = QtWidgets.QApplication(sys.argv)
     widget = DatabaseTableWidget(db)

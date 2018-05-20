@@ -31,26 +31,26 @@ class Column:
                  property_name: str,
                  data_type: str,
                  data_type_var=None,
-                 default_value=None,
+                 default=None,
                  pk: bool=False,
-                 fk=None,
-                 auto_increment=False,
-                 unique=False,
-                 not_null=False,
+                 fk: 'Table.__subclasses__'=None,
+                 auto_increment: bool=False,
+                 unique: bool=False,
+                 not_null: bool=False,
                  display_name: str=None):
 
         self.property_name = property_name
 
         self.data_type = data_type
         self.data_type_var = data_type_var
-        self.default_value = default_value
+        self.default = default
         self.pk = pk
         self.auto_increment = auto_increment
 
         if fk is not None:
-            self.fk = True
             self.fk_table = fk[0]
             self.fk_property = fk[1]
+            self.fk = True
         else:
             self.fk = False
 

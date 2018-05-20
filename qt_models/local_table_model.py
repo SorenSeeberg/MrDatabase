@@ -1,4 +1,4 @@
-from PyQt5 import QtGui, QtCore, QtWidgets, uic
+from PySide2 import QtGui, QtCore, QtWidgets
 from database.mrdatabase import MrDatabase
 from database.mrdatabase import database_connection
 from database.table import Table
@@ -72,7 +72,7 @@ class LocalTableModel(QtCore.QAbstractTableModel):
         self.beginInsertRows(parent, position, position)
 
         new_record: Table.__subclasses__ = self.__table__()
-        new_record.id = self.database.get_next_id(new_record.table_name)
+        new_record.id = self.database.get_next_id(new_record.get_table_name())
         self.__records__.append(new_record)
         self.database.insert_record(new_record)
 

@@ -8,7 +8,7 @@ from database.table import Table
 class Records:
 
     def __init__(self, records: List[Table.__subclasses__]):
-        super().__init__()
+        # super().__init__()
 
         self.__table_class__ = records[0].__class__
         self.__records__: List[Table.__subclasses__] = list(records)
