@@ -10,7 +10,7 @@ from database.table import Table
 from database.records import Records
 
 # from flask import Markup
-VERSION = '0.9.1 Alpha'
+VERSION = '0.9.2 Alpha'
 
 
 class LogLevel:
@@ -89,7 +89,8 @@ class MrDatabase:
             self.cur.execute(sql)
 
     def sub_transaction(self, sql: str, value_list: List[Any]=None) -> None:
-        """Executing sql without a connection. The connection must come
+        """
+        Executing sql without a connection. The connection must come
         from elsewhere. This allows for transaction-like sql execution
         """
 
@@ -193,7 +194,7 @@ class MrDatabase:
         sql_comps.append(f'SELECT * FROM {table_class.get_table_name()}')
 
         if condition is not None:
-            sql_comps.append("WHERE %s" % condition)
+            sql_comps.append(f'WHERE {condition}')
 
         if order_by is not None:
             if order_asc:
@@ -258,4 +259,3 @@ class database_connection:
         self.database_object.con.close()
         self.database_object.con = None
         self.database_object.cur = None
-

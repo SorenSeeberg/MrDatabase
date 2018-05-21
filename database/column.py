@@ -7,13 +7,13 @@ class DataTypes:
     @staticmethod
     def char(num_chars) -> str:
 
-        return 'CHAR(%s)' % num_chars
+        return f'CHAR({num_chars})'
 
     @staticmethod
     def varchar(num_chars=None) -> str:
 
         if num_chars:
-            return 'VARCHAR(%s)' % num_chars
+            return f'VARCHAR({num_chars})'
         else:
             return 'VARCHAR'
 

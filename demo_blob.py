@@ -3,19 +3,18 @@
 
 import os
 
-from database.database import Database
-from database.database import LogLevel
-from database.database import database_connection
+from database.mrdatabase import MrDatabase
+from database.mrdatabase import LogLevel
 
 """ import of table classes """
 from table_schema_examples import Image
 
-database = Database(os.path.abspath(os.path.join(__file__, os.pardir)), 'test.db')
+database = MrDatabase(os.path.abspath(os.path.join(__file__, os.pardir)), 'test.db')
 
 
 if __name__ == '__main__':
     # enables logging at 'DEBUG' level
-    Database.logging(level=LogLevel.error)
+    MrDatabase.logging(level=LogLevel.error)
 
     # drop tables
     database.drop_table(Image)
@@ -29,12 +28,12 @@ if __name__ == '__main__':
 
         with open(image_path, 'rb') as image_file:
 
-            image = Image(
-                id=index,
-                md5=Image.md5_file_object(image_file),
-                imageName=image_name,
-                imageData=Image.read_blob_file(image_file)
-            )
+            image = Image()
+
+            image.id = index
+            image.md5 = Image.md5_file_object(image_file)
+            image.imageName = image_path
+            image.imageData = Image.read_blob_file(image_file)
 
             database.insert_record(image)
 
