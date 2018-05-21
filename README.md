@@ -1,8 +1,8 @@
 # MrDatabase
 Connect PySide2 and SQLite with ease
 
-## Version 0.9.2 Alpha (Current)
-- Fixed demo_blob.py
+## Version 0.9.3 Alpha (Current)
+- property name is no longer required to be passed in as argument
 
 # Table
 
@@ -11,12 +11,15 @@ Setting up a table is very easy
 ```python
 class City(Table):
 
-    id = Column('id', DataTypes.integer, pk=True)
-    postalCode = Column('postalCode', DataTypes.smallint, default=9999, display_name='Postal Code')
-    cityName = Column('cityName', DataTypes.varchar(40), default='New York', display_name='City Name')
+    id = Column(DataTypes.integer, pk=True)
+    postalCode = Column(DataTypes.smallint, default=9999)
+    cityName = Column(DataTypes.varchar(40), default='New York')
 ```
 
 # Release Notes
+
+## Version 0.9.2 Alpha
+- Fixed demo_blob.py
 
 ## Version 0.9.1 Alpha
 - Simplified Table definition

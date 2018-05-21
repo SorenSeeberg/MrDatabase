@@ -30,15 +30,24 @@ class Table:
     @classmethod
     def get_schema_columns_cls(cls) -> Generator[Column, None, None]:
         """ Returns the Column objects of a table. Using self.get_table_property_names to guarantee property order """
-        return (getattr(cls, prop_name) for prop_name in cls.get_class_column_names())
+        return (getattr(cls, prop_name) for prop_name in cls.get_column_names_cls())
 
     def get_schema_columns(self) -> Generator[Column, None, None]:
         """ Returns the Column objects of a table. Using self.get_table_property_names to guarantee property order """
 
-        return (getattr(self.__class__, prop_name) for prop_name in self.get_class_column_names())
+        return (getattr(self.__class__, prop_name) for prop_name in self.get_column_names_cls())
+
+    def get_named_columns(self):
+
+        return zip(self.get_schema_columns(), self.get_column_names_cls())
 
     @classmethod
-    def get_class_column_names(cls) -> Generator[str, None, None]:
+    def get_named_columns_cls(cls):
+
+        return zip(cls.get_schema_columns_cls(), cls.get_column_names_cls())
+
+    @classmethod
+    def get_column_names_cls(cls) -> Generator[str, None, None]:
         """ Returns class level attribute names (excluding privates and callables) """
 
         return (attr for attr, value in cls.__dict__.items() if not callable(getattr(cls, attr)) and not attr.startswith("__"))
@@ -46,7 +55,7 @@ class Table:
     @classmethod
     def get_attribute_name_by_index(cls, index) -> str:
 
-        return list(cls.get_class_column_names())[index]
+        return list(cls.get_column_names_cls())[index]
 
     @classmethod
     def __create_table__(cls) -> str:
@@ -58,10 +67,10 @@ class Table:
         sql_properties = list()
         sql_foreign_keys = list()
 
-        for column in cls.get_schema_columns_cls():
+        for column, prop_name in cls.get_named_columns_cls():
             property_components = list()
 
-            property_components.append(column.property_name)
+            property_components.append(prop_name)
             property_components.append(column.data_type)
 
             if column.pk:
@@ -82,13 +91,11 @@ class Table:
                 sql_properties.append(' '.join(property_components))
 
             if column.fk:
-                sql_foreign_keys.append(f'FOREIGN KEY ({column.property_name}) '
+                sql_foreign_keys.append(f'FOREIGN KEY ({prop_name}) '
                                         f'REFERENCES {column.fk_table.get_table_name()}({column.fk_property})')
 
         sql.append(', \n'.join(sql_properties + sql_foreign_keys))
         sql.append(');')
-
-        print(' \n'.join(sql))
 
         return ' \n'.join(sql)
 
@@ -116,7 +123,7 @@ class Table:
 
         if instance:
 
-            column_names = (list(instance.get_class_column_names()))
+            column_names = (list(instance.get_column_names_cls()))
             instance_att_names = list(instance.get_instance_attribute_names())
 
             for column_name in column_names:
@@ -139,12 +146,6 @@ class Table:
                     errors[1].append(msg)
                     no_errors_found = False
 
-                # if missing_attributes:
-                #     msg = 'Missing instance attributes: %s' % str(missing_attributes)
-                #     logging.critical(msg)
-                #     errors[1].append(msg)
-                #     no_errors_found = False
-
         errors[0] = no_errors_found
 
         return tuple(errors)
@@ -164,25 +165,11 @@ class Table:
         self.__init_join_tables__()
 
     def __setup_default_value__(self):
-        for column in self.get_schema_columns():
-
-            # if column.default is not None:
-            #     print(f'{column} : {column.default}')
-
-            # if column.default is None:
-            #     continue
-
-            # try:
-            #     if getattr(self, column.property_name):
-            #         continue
-            # except TypeError:
-            #     continue
-
-            setattr(self, column.property_name, column.default)
+        [setattr(self, prop_name, column.default) for column, prop_name in self.get_named_columns()]
 
     def __init_join_tables__(self):
 
-        for column in self.get_schema_columns():
+        for column, prop_name in self.get_named_columns():
 
             if not column.fk:
                 continue
@@ -190,14 +177,14 @@ class Table:
             # todo : simplify the dict . . just the column is needed
             self.__join_table_definitions__[column.fk_table.__name__] = {'table_class': column.fk_table,
                                                                          'fk': column.fk_property,
-                                                                         'property': column.property_name,
+                                                                         'property': prop_name,
                                                                          'column': column}
 
     def __getitem__(self, item):
         return getattr(self, item)
 
     def __repr__(self) -> str:
-        x = (f'{a} : {b}' for a, b in zip(list(self.get_class_column_names()), list(self.get_values())))
+        x = (f'{a} : {b}' for a, b in zip(list(self.get_column_names_cls()), list(self.get_values())))
 
         repr_string = f'{self.get_table_name()} ({", ".join(x)})'
 
@@ -208,7 +195,7 @@ class Table:
 
         display_names = list()
 
-        for attrib in self.get_class_column_names():
+        for attrib in self.get_column_names_cls():
             display_name = getattr(self.__class__, attrib).display_name
 
             if not display_name:
@@ -262,19 +249,19 @@ class Table:
     def from_sql_record(self, sql_row: List) -> None:
         """ Sets the record values from a sql record of type list """
 
-        for column_name, value in zip(self.get_class_column_names(), sql_row):
+        for column_name, value in zip(self.get_column_names_cls(), sql_row):
             setattr(self, column_name, value)
 
     def get_values(self) -> Generator:
         """ Returns a generator for all the values """
 
-        return (getattr(self, column_name) for column_name in self.get_class_column_names())
+        return (getattr(self, column_name) for column_name in self.get_column_names_cls())
 
     def get_value_by_index(self, index: int):
         """ Gets the value of the nth attribute """
 
         try:
-            return getattr(self, list(self.get_class_column_names())[index])
+            return getattr(self, list(self.get_column_names_cls())[index])
         except:
             return False
 
@@ -282,7 +269,7 @@ class Table:
         """ Sets the value of the nth attribute """
 
         try:
-            attrib = list(self.get_class_column_names())[index]
+            attrib = list(self.get_column_names_cls())[index]
             setattr(self, attrib, value)
             return True
         except:
@@ -291,7 +278,7 @@ class Table:
     def reset_to_default(self) -> None:
         """ Resets the values of the instance to the defined default values of each Column """
 
-        for column_name, column in zip(self.get_class_column_names(), self.get_schema_columns()):
+        for column, column_name in self.get_named_columns():
             setattr(self, column_name, column.default)
 
     def from_json(self, json_string: str) -> None:
@@ -299,7 +286,7 @@ class Table:
 
         json_object = json.loads(json_string)
 
-        for column_name, column in zip(self.get_class_column_names(), self.get_schema_columns()):
+        for column, column_name in self.get_named_columns():
             setattr(self, column_name, json_object.get(column_name, column.default))
 
     def to_json(self) -> str:
@@ -308,10 +295,10 @@ class Table:
         json_data = dict()
 
         json_data["table_name"] = self.get_table_name()
-        json_data["headers"] = list(self.get_class_column_names())
+        json_data["headers"] = list(self.get_column_names_cls())
 
-        for prop in self.get_schema_columns():
-            json_data[prop.property_name] = getattr(self, prop.property_name)
+        for prop_name in self.get_column_names_cls():
+            json_data[prop_name] = getattr(self, prop_name)
 
         return json.dumps(json_data)
 

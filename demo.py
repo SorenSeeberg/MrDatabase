@@ -17,9 +17,9 @@ mr_database = MrDatabase(os.path.abspath(os.path.join(__file__, os.pardir)), 'te
 def class_level_inheritance_testing():
 
     print(City())
-    print(list(City.get_class_column_names()))
+    print(list(City.get_column_names_cls()))
     print(Person())
-    print(list(Person.get_class_column_names()))
+    print(list(Person.get_column_names_cls()))
 
 
 if __name__ == '__main__':
@@ -80,6 +80,7 @@ if __name__ == '__main__':
     person_2.firstName = 'Niels'
     person_2.lastName = 'Bohr'
     person_2.cityId = city_2.id
+    mr_database.insert_record(person_2)
 
     # Changing cityName to boston and updating the record
     city_2.cityName = 'Boston'

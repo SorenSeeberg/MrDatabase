@@ -28,7 +28,6 @@ class Column:
     data_types: DataTypes = DataTypes
 
     def __init__(self,
-                 property_name: str,
                  data_type: str,
                  data_type_var=None,
                  default=None,
@@ -38,8 +37,6 @@ class Column:
                  unique: bool=False,
                  not_null: bool=False,
                  display_name: str=None):
-
-        self.property_name = property_name
 
         self.data_type = data_type
         self.data_type_var = data_type_var
@@ -63,7 +60,7 @@ class Column:
         pass
 
     def __repr__(self) -> str:
-        return self.property_name
+        return f'Column({self.data_type})'
 
     def __eq__(self, other: 'Column') -> bool:
         pass

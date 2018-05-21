@@ -10,7 +10,7 @@ from database.table import Table
 from database.records import Records
 
 # from flask import Markup
-VERSION = '0.9.2 Alpha'
+VERSION = '0.9.3 Alpha'
 
 
 class LogLevel:
@@ -134,7 +134,7 @@ class MrDatabase:
             condition = record_object.default_update_condition()
 
         table_name = record_object.get_table_name()
-        attributes = record_object.get_class_column_names()
+        attributes = record_object.get_column_names_cls()
         values = list(record_object.get_values())
         update = ", ".join(f'{attrib}=?' for attrib in attributes)
 
@@ -155,7 +155,7 @@ class MrDatabase:
         """Constructing the sql for inserting a record"""
 
         table_name = record_object.get_table_name()
-        attributes = list(record_object.get_class_column_names())
+        attributes = list(record_object.get_column_names_cls())
         values = list(record_object.get_values())
 
         values_string = ", ".join(len(attributes) * ['?'])
