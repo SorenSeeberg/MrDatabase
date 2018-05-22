@@ -39,9 +39,9 @@ db.drop_table(City)
 ```
 
 ### Records (DML)
-To insert, update or delete records from the database, you need record objects representing what you want to manipulate.
+To insert, update or delete records in the database, you need record objects representing what you want to manipulate.
 
-You can create new records objects like the ```city1``` example or you can fetch them from the database using ```db.select_record``` or ```db.select_records```
+You can create new records objects like the ```city1``` example or you can fetch existing ones from the database using ```db.select_record``` or ```db.select_records```
 
 ```python
 city1 = City()
@@ -49,8 +49,9 @@ city1.id = db.increment_id('City', 'id')
 city1.postal_code = 10115
 city1.city_name = 'Berlin'
 
-cities = db.select_records(City)
-a_city = db.select_record(City, condition='cityName="Berlin"')
+cities = db.select_records(City)                                # all cities
+cities = db.select_records(City, condition='postalCode > 4000') # all cities with a postal code > 4000
+a_city = db.select_record(City, condition='cityName="Berlin"')  # just Berlin
 
 db.insert_record(city1)
 db.update_record(city1)
