@@ -8,7 +8,7 @@ Databasing as easy as it gets!
 When creating an instance of MrDatabase, it will see if the database already exists. If it does not, it will create it.
 
 ```python
-from database.mrdatabase import MrDatabase
+from mr_database import MrDatabase
 
 db = MrDatabase('some/path/my.db')
 ```
@@ -20,8 +20,9 @@ All connecting and disconnecting to the database is handled by the internals of 
 Creating a new table class is super easy. This class works both as schema and record factory. Simply create a class that inherits from ```Table```. Add fields as class variables. Each field must be an instance of ```Column```. Voilà, the table is ready!
 
 ```python
-from database.column import *
-from database.table import *
+from mr_database import Column
+from mr_database import Table
+from mr_database import DataTypes
 
 class City(Table):
 
