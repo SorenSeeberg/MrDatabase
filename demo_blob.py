@@ -3,8 +3,8 @@
 
 import os
 
-from database.mrdatabase import MrDatabase
-from database.mrdatabase import LogLevel
+from mr_database import MrDatabase
+from mr_database import LogLevel
 
 """ import of table classes """
 from table_schema_examples import Image

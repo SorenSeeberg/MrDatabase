@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-from database.column import *
-from database.table import *
+from mr_database import DataTypes
+from mr_database import Table
+from mr_database import Column
 
 
 class TableTemplate(Table):

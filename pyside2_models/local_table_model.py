@@ -1,8 +1,8 @@
 from PySide2 import QtGui, QtCore, QtWidgets
-from database.mrdatabase import MrDatabase
-from database.mrdatabase import database_connection
-from database.table import Table
-from database.records import Records
+from mr_database import MrDatabase
+from mr_database import Table
+from mr_database import Records
+from mr_database import database_connection
 
 
 class LocalTableModel(QtCore.QAbstractTableModel):

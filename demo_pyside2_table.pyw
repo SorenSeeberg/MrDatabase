@@ -1,5 +1,5 @@
-from database.mrdatabase import MrDatabase
-from database.mrdatabase import LogLevel
+from mr_database import MrDatabase
+from mr_database import LogLevel
 from table_schema_examples import City, Person
 from PySide2 import QtGui, QtCore, QtWidgets
 from pyside2_models.local_table_model import LocalTableModel
