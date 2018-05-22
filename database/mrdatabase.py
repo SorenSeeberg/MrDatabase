@@ -10,7 +10,7 @@ from database.table import Table
 from database.records import Records
 
 # from flask import Markup
-VERSION = '0.9.3 Alpha'
+VERSION = '0.9.4 Alpha'
 
 
 class LogLevel:
@@ -35,10 +35,10 @@ class MrDatabase:
 
         return VERSION
 
-    def __init__(self, database_path: str, database_name: str):
+    def __init__(self, database_path: str):
         self.con: sqlite.connect = None
         self.cur: sqlite.Cursor = None
-        self.database_path: str = os.path.join(database_path, database_name)
+        self.database_path = database_path
 
     def create_table(self, table_class: Table.__subclasses__, commit=True):
 
@@ -230,7 +230,7 @@ class MrDatabase:
 
         return records
 
-    def get_next_id(self, table_name: str, column_name: str='id') -> int:
+    def increment_id(self, table_name: str, column_name: str= 'id') -> int:
 
         try:
             with database_connection(self, commit=False):

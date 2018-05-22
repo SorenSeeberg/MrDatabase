@@ -11,7 +11,7 @@ from table_schema_examples import City
 from table_schema_examples import Person
 from table_schema_examples import BrokenTable
 
-mr_database = MrDatabase(os.path.abspath(os.path.join(__file__, os.pardir)), 'test_functionality.db')
+db = MrDatabase(os.path.join(os.path.abspath(os.path.join(__file__, os.pardir)), 'test_functionality.db'))
 
 
 def class_level_inheritance_testing():
@@ -36,16 +36,16 @@ if __name__ == '__main__':
 
     # drop existing tables if exists
     print('\nDropping Tables\n------------------------------------------')
-    mr_database.drop_table(City)
+    db.drop_table(City)
     print('Dropping table: %s' % City.__name__)
-    mr_database.drop_table(Person)
+    db.drop_table(Person)
     print('Dropping table: %s' % Person.__name__)
 
     # create tables
     print('\nCreating Tables\n------------------------------------------')
-    mr_database.create_table(City)
+    db.create_table(City)
     print('Creating table: %s' % City.__name__)
-    mr_database.create_table(Person)
+    db.create_table(Person)
     print('Creating table: %s' % Person.__name__)
 
     # Creation and insertion of records
@@ -54,67 +54,67 @@ if __name__ == '__main__':
     print('\nCreation and Insertion of Records\n------------------------------------------')
 
     city_1 = City()
-    city_1.id = mr_database.get_next_id("City", "id")
+    city_1.id = db.increment_id("City", "id")
     city_1.postal_code = 8300
     city_1.city_name = 'Odder'
 
     print('City_1: %s' % city_1)
     person_1 = Person()
-    person_1.id = mr_database.get_next_id("Person", "id")
+    person_1.id = db.increment_id("Person", "id")
     person_1.firstName = 'Albert'
     person_1.lastName = 'Einstein'
     person_1.cityId = city_1.id
 
     print('Person_1: %s' % person_1)
-    mr_database.insert_record(city_1)
-    mr_database.insert_record(person_1)
+    db.insert_record(city_1)
+    db.insert_record(person_1)
 
     city_2 = City()
-    city_2.id = mr_database.get_next_id("City", "id")
+    city_2.id = db.increment_id("City", "id")
     city_2.postal_code = 8660
     city_2.city_name = 'Skanderborg'
 
-    mr_database.insert_record(city_2)
+    db.insert_record(city_2)
     person_2 = Person()
-    person_2.id = mr_database.get_next_id("Person", "id")
+    person_2.id = db.increment_id("Person", "id")
     person_2.firstName = 'Niels'
     person_2.lastName = 'Bohr'
     person_2.cityId = city_2.id
-    mr_database.insert_record(person_2)
+    db.insert_record(person_2)
 
     # Changing cityName to boston and updating the record
     city_2.cityName = 'Boston'
-    mr_database.update_record(city_2)
+    db.update_record(city_2)
 
     # Creating a new city record. Using the from_json and to_json methods to transport the
     # properties of city2 to city_json. Then we update some of the fields and insert the record
     city_json = City()
     city_json.from_json(city_2.to_json())
-    city_json.id = mr_database.get_next_id("City", "id")
+    city_json.id = db.increment_id("City", "id")
     city_json.cityName = 'Frederiksberg'
-    mr_database.insert_record(city_json)
+    db.insert_record(city_json)
 
     # selecting the newly inserted record
-    city3: City = mr_database.select_record(City, condition='cityName="Frederiksberg"')
+    city3: City = db.select_record(City, condition='cityName="Frederiksberg"')
     print('City Name: %s' % city3.cityName)
 
     # selecting and printing all cities
-    all_cities = mr_database.select_records(City)
+    all_cities = db.select_records(City)
     print('\nAll Cities\n------------------------------------------')
     for city_1 in all_cities:
         print(city_1)
 
     # Deleting city3
-    mr_database.delete_record(city3)
+    db.delete_record(city3)
 
     print('\nDefault Values of City()\n------------------------------------------')
     city3.reset_to_default()
     print(city3)
 
     print('\nReferenced City record from person_1\n------------------------------------------')
-    referenced_record = person_1.select_reference_record(mr_database, 'City')
+    referenced_record = person_1.select_reference_record(db, 'City')
     print(referenced_record)
 
-    referenced_records = person_2.select_reference_record_all(mr_database)
+    referenced_records = person_2.select_reference_record_all(db)
 
     print('\n------------------------\nAll Tests Complete')

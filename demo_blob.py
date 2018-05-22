@@ -9,7 +9,7 @@ from database.mrdatabase import LogLevel
 """ import of table classes """
 from table_schema_examples import Image
 
-database = MrDatabase(os.path.abspath(os.path.join(__file__, os.pardir)), 'test.db')
+db = MrDatabase(os.path.join(os.path.abspath(os.path.join(__file__, os.pardir)), 'test_functionality.db'))
 
 
 if __name__ == '__main__':
@@ -17,10 +17,10 @@ if __name__ == '__main__':
     MrDatabase.logging(level=LogLevel.error)
 
     # drop tables
-    database.drop_table(Image)
+    db.drop_table(Image)
 
     # create tables
-    database.create_table(Image)
+    db.create_table(Image)
 
     for index, image_name in enumerate(os.listdir(os.path.join(os.path.dirname(__file__), 'sample_data'))):
 
@@ -35,9 +35,9 @@ if __name__ == '__main__':
             image.imageName = image_path
             image.imageData = Image.read_blob_file(image_file)
 
-            database.insert_record(image)
+            db.insert_record(image)
 
-    image2: Image = database.select_record(Image, 'id=2')
+    image2: Image = db.select_record(Image, 'id=2')
 
     with open(image2.imageName, 'wb') as file:
         file.write(image2.imageData)
