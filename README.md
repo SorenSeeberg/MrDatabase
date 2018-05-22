@@ -5,7 +5,7 @@ Databasing as easy as it gets!
 
 ### Create a Database
 
-When creating an instance of MrDatabase, it will see if the database already exists. If it does not, it will create it.
+When creating an instance of MrDatabase, it will check if the path points to an existing sqlite .db file. If it does not, it will create it.
 
 ```python
 from mr_database import MrDatabase
@@ -13,7 +13,7 @@ from mr_database import MrDatabase
 db = MrDatabase('some/path/my.db')
 ```
 
-All connecting and disconnecting to the database is handled by the internals of MrDatabase.
+Most connecting and disconnecting actions with the database is handled by the internals of MrDatabase.
 
 ### Tables (DDL)
 
@@ -45,7 +45,7 @@ You can create new records objects like the ```city1``` example or you can fetch
 
 ```python
 city1 = City()
-city1.id = db.increment_id("City", "id")
+city1.id = db.increment_id('City', 'id')
 city1.postal_code = 10115
 city1.city_name = 'Berlin'
 
