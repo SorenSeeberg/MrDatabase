@@ -46,12 +46,12 @@ all_cities = db.select_records(City)
 ```
 
 # Release Notes
-###Version 0.9.4 Alpha
+### Version 0.9.4 Alpha
 - Added code examples to README.md
 - Renamed ```MrDatabase.get_next_id``` to ```MrDatabase.increment_id```
 - changed ```MrDatabase()``` to simply take a path instead of path and db name as separate arguments
 
-###Version 0.9.3 Alpha
+### Version 0.9.3 Alpha
 - property name is no longer required to be passed in as argument
 
 ### Version 0.9.2 Alpha
