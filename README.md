@@ -59,9 +59,9 @@ db.delete_record(city1)
 ```
 
 ### Batching
-By default, actions like ```insert_record``` and ```update_record```, commit changes to the database one command at a time. This is very easy to work with, but can be very taxing on performance. If you need to call many consequtive sql commands you can batch commands together to dramatically improve performance.
+By default, mutating actions like ```insert_record``` and ```update_record```, commit changes to the database one command at a time. This is very easy to work with, but for heavy work loads, this can be quite taxing on performance. If you need to call many mutating sql commands you can batch commands together to dramatically improve performance.
 
-To set it up, you use the ```database_connection``` context manager. You pass it the ```db``` object and set ```commit=True```. Whenever you call a database action, you set ```commit=False```. This way, the commit will only be performed when you are done adding commands within the scope of the ```database_connection```.
+To set it up, you use the ```database_connection``` context manager. You pass it the ```db``` object and set ```commit=True```. Whenever you call a database mutating action, in scope of the ```database_connection``` context amanger, you set ```commit=False```. This way, the commit will only be called once you are done.
 ```python
 from mr_database import database_connection
 
@@ -74,6 +74,8 @@ with database_connection(db, commit=True):
         new_person.firstName += f'_{person_id}'
         db.insert_record(new_person, commit=False)
 ```
+
+The example above inserts 10.000 clones of a ```Person``` record. It takes less than 500ms.
 
 # Release Notes
 ### Version 0.9.5 Alpha
