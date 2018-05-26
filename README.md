@@ -1,4 +1,4 @@
-# MrDatabase v. 0.9.4 Alpha
+# MrDatabase v. 0.9.5 Alpha
 Databasing as easy as it gets!
 
 ## Simple Code Examples
@@ -58,7 +58,30 @@ db.update_record(city1)
 db.delete_record(city1)
 ```
 
+### Batching
+By default, actions like ```insert_record``` and ```update_record```, commit changes to the database one command at a time. This is very easy to work with, but can be very taxing on performance. If you need to call many consequtive sql commands you can batch commands together to dramatically improve performance.
+
+To set it up, you use the ```database_connection``` context manager. You pass it the ```db``` object and set ```commit=True```. Whenever you call a database action, you set ```commit=False```. This way, the commit will only be performed when you are done adding commands within the scope of the ```database_connection```.
+```python
+from mr_database import database_connection
+
+next_id: int = db.increment_id('Person', 'id')
+
+with database_connection(db, commit=True):
+    for person_id in range(next_id, next_id + 10000):
+        new_person = person_1.clone()
+        new_person.id = person_id
+        new_person.firstName += f'_{person_id}'
+        db.insert_record(new_person, commit=False)
+```
+
 # Release Notes
+### Version 0.9.5 Alpha
+- Added code example of how to do batching of sql commands (10K rows in less than half a sec)
+- Added documentation of how to do batching of sql commands
+- Added .clone() to record objects (based on copy.deepcopy)
+- Experimented with script generation, but performance is too terrible
+
 ### Version 0.9.4 Alpha
 - Added code examples to README.md
 - Renamed ```MrDatabase.get_next_id``` to ```MrDatabase.increment_id```

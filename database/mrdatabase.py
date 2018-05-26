@@ -10,7 +10,7 @@ from database.table import Table
 from database.records import Records
 
 # from flask import Markup
-VERSION = '0.9.4 Alpha'
+VERSION = '0.9.5 Alpha'
 
 
 class LogLevel:
@@ -249,6 +249,7 @@ class database_connection:
         self.commit = commit
 
     def __enter__(self):
+
         self.database_object.con = sqlite.connect(self.database_object.database_path)
         self.database_object.cur = self.database_object.con.cursor()
 

@@ -11,6 +11,7 @@ static members are utility
 """
 
 import json
+import copy
 import logging
 import sqlite3 as sqlite
 import hashlib
@@ -301,6 +302,9 @@ class Table:
             json_data[prop_name] = getattr(self, prop_name)
 
         return json.dumps(json_data)
+
+    def clone(self) -> 'self':
+        return copy.deepcopy(self)
 
 
 
