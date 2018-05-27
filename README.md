@@ -41,7 +41,7 @@ db.drop_table(City)
 ### Records (DML)
 To insert, update or delete records in the database, you need record objects representing what you want to manipulate.
 
-You can create new record objects like the ```city1``` example or you can fetch existing ones from the database using ```db.select_record``` or ```db.select_records```. Lastly you can call ```.clone``` on the record you want to copy. This method returns a ```copy.deepcopy``` if the record in question.
+You can create new record objects like the ```city1``` example, where you make an instance of a table class, or you can fetch existing ones from the database using ```db.select_record``` or ```db.select_records```. Lastly you can call ```.clone()``` on the record you want to copy. This method returns a ```copy.deepcopy``` if the record in question.
 
 ```python
 city1 = City()
@@ -63,21 +63,23 @@ db.delete_record(city1)
 ### Batching
 By default, mutating actions like ```insert_record``` and ```update_record```, commit changes to the database one command at a time. This is very easy to work with, but for heavy work loads, this can be quite taxing on performance. If you need to call many mutating sql commands you can batch commands together to dramatically improve performance.
 
-To set it up, you use the ```database_connection``` context manager. You pass it the ```db``` object and set ```commit=True```. Whenever you call a database mutating actions in scope of the ```database_connection```, you simply set ```commit=False``` on the individual commands. This way, the commit will only be called once you are done.
+To set it up, you use the ```DatabaseConnection``` context manager. You pass it the ```db``` object and set ```con_type=ConType.batch```. All database actions called within the ```DatabaseConnection``` will use the database connection managed by this context manager. This causes a dramatic increase in performance when performaing many database database actions.
+
 ```python
-from mr_database import database_connection
+from mr_database import DatabaseConnection
+from mr_database import ConType
 
-next_id: int = db.increment_id('Person', 'id')
+next_id: int = db.increment_id('Person')
 
-with database_connection(db, commit=True):
+with DatabaseConnection(db, con_type=ConType.batch):
     for person_id in range(next_id, next_id + 10000):
         new_person = person_1.clone()
         new_person.id = person_id
         new_person.firstName += f'_{person_id}'
-        db.insert_record(new_person, commit=False)
+        db.insert_record(new_person)
 ```
 
-The example above inserts 10.000 clones of a ```Person``` record. It takes less than 500ms.
+The example above inserts 10.000 clones of a ```Person()``` record. It takes less than 500ms.
 
 # Release Notes
 ### Version 0.9.5 Alpha
@@ -85,6 +87,8 @@ The example above inserts 10.000 clones of a ```Person``` record. It takes less 
 - Added documentation of how to do batching of sql commands
 - Added .clone() to record objects (based on copy.deepcopy)
 - Experimented with script generation, but performance is too terrible
+- Refactored database_connection (now DatabaseConnection) to better distinguish between mutation, query and batch.
+- Added ConType enum class (mutation, query, batch)
 
 ### Version 0.9.4 Alpha
 - Added code examples to README.md

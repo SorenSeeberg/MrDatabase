@@ -1,0 +1,3 @@
+class DefaultValues:
+
+    commit = True

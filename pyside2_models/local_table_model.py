@@ -2,7 +2,7 @@ from PySide2 import QtGui, QtCore, QtWidgets
 from mr_database import MrDatabase
 from mr_database import Table
 from mr_database import Records
-from mr_database import database_connection
+from database.databaseconnection import DatabaseConnection
 
 
 class LocalTableModel(QtCore.QAbstractTableModel):
@@ -86,7 +86,7 @@ class LocalTableModel(QtCore.QAbstractTableModel):
 
         to_be_deleted = list()
 
-        with database_connection(self.__database__, commit=True):
+        with DatabaseConnection(self.__database__, commit=True):
 
             for i in range(position, position + rows):
 

@@ -1,5 +1,5 @@
 from database.mrdatabase import MrDatabase
-from database.mrdatabase import database_connection
+from database.databaseconnection import DatabaseConnection, ConType
 from database.table import Table
 from database.records import Records
 from database.mrdatabase import LogLevel

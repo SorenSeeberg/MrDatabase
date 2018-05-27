@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import os
+
 from mr_database import MrDatabase
 from mr_database import LogLevel
-from mr_database import database_connection
+from mr_database import DatabaseConnection, ConType
 
 """ import of table classes """
 from table_schema_examples import City
@@ -13,6 +14,7 @@ from table_schema_examples import BrokenTable
 
 
 db = MrDatabase(os.path.join(os.path.abspath(os.path.join(__file__, os.pardir)), 'test_functionality.db'))
+# db = MrDatabase(':memory:')
 
 
 def class_level_inheritance_testing():
@@ -119,17 +121,17 @@ if __name__ == '__main__':
     referenced_records = person_2.select_reference_record_all(db)
 
     print('\nInserting 10K clones of person_1\n------------------------------------------')
-    next_id = db.increment_id('Person', 'id')
-    with database_connection(db, commit=True):
+
+    next_id = db.increment_id('Person')
+
+    with DatabaseConnection(db, con_type=ConType.batch):
         for person_id in range(next_id, next_id + 10000):
             new_person = person_1.clone()
             new_person.id = person_id
             new_person.firstName += f'_{person_id}'
-            db.insert_record(new_person, commit=False)
+            db.insert_record(new_person)
 
     for person in db.select_records(Person, 'id < 10'):
         print(person)
-
-    # print(Person.__create_table__())
 
     print('\n------------------------\nAll Tests Complete')
