@@ -20,22 +20,14 @@ db = MrDatabase(os.path.join(os.path.abspath(os.path.join(__file__, os.pardir)),
 def class_level_inheritance_testing():
 
     print(City())
-    print(list(City.get_column_names_cls()))
+    print(list(City.get_col_names()))
     print(Person())
-    print(list(Person.get_column_names_cls()))
+    print(list(Person.get_col_names()))
 
 
 if __name__ == '__main__':
     # enables logging at 'DEBUG' level
     MrDatabase.logging(level=LogLevel.error)
-
-    # Validating a table class for errors
-    print('\nValidating BrokenTable\n------------------------------------------')
-    validation_result = BrokenTable.table_schema_validation()
-    if validation_result[0] is False:
-        print("Errors found in BrokenTable")
-        for error in validation_result[1]:
-            print(error)
 
     # drop existing tables if exists
     print('\nDropping Tables\n------------------------------------------')
@@ -56,6 +48,7 @@ if __name__ == '__main__':
     # Alternatively you can increment manually
     print('\nCreation and Insertion of Records\n------------------------------------------')
 
+    print(City.get_col_display_names())
     city_1 = City()
     city_1.id = db.increment_id("City", "id")
     city_1.postal_code = 8300

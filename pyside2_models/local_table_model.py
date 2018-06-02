@@ -12,7 +12,7 @@ class LocalTableModel(QtCore.QAbstractTableModel):
         self.__database__: MrDatabase = database
         self.__records__: Records = records
         self.__table__: Table.__subclasses__ = records.table_class()
-        self.__headers__ = self.__records__[0].get_column_display_names()
+        self.__headers__ = self.__records__[0].__class__.get_col_display_names()
 
     @property
     def database(self) -> MrDatabase:
@@ -37,10 +37,10 @@ class LocalTableModel(QtCore.QAbstractTableModel):
         column: int = index.column()
 
         if role == QtCore.Qt.EditRole:
-            return self.__records__[row].get_value_by_index(column)
+            return self.__records__[row].__get_value_by_index__(column)
 
         if role == QtCore.Qt.DisplayRole:
-            return self.__records__[row].get_value_by_index(column)
+            return self.__records__[row].__get_value_by_index__(column)
 
     def setData(self, q_model_index, value, role=None) -> bool:
 
@@ -49,7 +49,7 @@ class LocalTableModel(QtCore.QAbstractTableModel):
             row: int = q_model_index.row()
             column: int = q_model_index.column()
 
-            if self.__records__[row].set_value_by_index(column, value):
+            if self.__records__[row].__set_value_by_index__(column, value):
                 self.database.update_record(self.__records__[row])
                 self.dataChanged.emit(q_model_index, q_model_index)
                 return True

@@ -29,7 +29,7 @@ class Records:
 
         if self.__records__:
             records = self.__records__
-            attr: str = self.__table_class__.get_attribute_name_by_index(attribute_index)
+            attr: str = self.__table_class__.get_attr_name_by_index(attribute_index)
             records.sort(key=lambda x: x[attr], reverse=reverse)
 
     def append(self, value: Any) -> None:

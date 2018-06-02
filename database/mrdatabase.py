@@ -114,7 +114,7 @@ class MrDatabase:
             condition = record_object.default_update_condition()
 
         table_name = record_object.get_table_name()
-        attributes = record_object.get_column_names_cls()
+        attributes = record_object.get_col_names()
         values = list(record_object.get_values())
         update = ", ".join(f'{attrib}=?' for attrib in attributes)
 
@@ -134,7 +134,7 @@ class MrDatabase:
         """Constructing the sql for inserting a record"""
 
         table_name = record_object.get_table_name()
-        attributes = list(record_object.get_column_names_cls())
+        attributes = list(record_object.get_col_names())
         values = list(record_object.get_values())
 
         values_string = ", ".join(len(attributes) * ['?'])

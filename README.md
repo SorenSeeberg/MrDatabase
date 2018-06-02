@@ -89,6 +89,7 @@ The example above inserts 10.000 clones of a ```Person()``` record. It takes les
 - Experimented with script generation, but performance is too terrible
 - Refactored database_connection (now DatabaseConnection) to better distinguish between mutation, query and batch.
 - Added ConType enum class (mutation, query, batch)
+- Cleanup, Simplification and Optimization of Table class
 
 ### Version 0.9.4 Alpha
 - Added code examples to README.md

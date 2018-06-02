@@ -12,7 +12,6 @@ static members are utility
 
 import json
 import copy
-import logging
 import sqlite3 as sqlite
 import hashlib
 from typing import Dict, Generator, List, Tuple
@@ -25,38 +24,9 @@ class Table:
     __join_tables__: Dict = dict()
 
     @classmethod
-    def get_table_name(cls) -> str:
-        return cls.__name__
+    def __get_named_col_pairs__(cls):
 
-    @classmethod
-    def get_schema_columns_cls(cls) -> Generator[Column, None, None]:
-        """ Returns the Column objects of a table. Using self.get_table_property_names to guarantee property order """
-        return (getattr(cls, prop_name) for prop_name in cls.get_column_names_cls())
-
-    def get_schema_columns(self) -> Generator[Column, None, None]:
-        """ Returns the Column objects of a table. Using self.get_table_property_names to guarantee property order """
-
-        return (getattr(self.__class__, prop_name) for prop_name in self.get_column_names_cls())
-
-    def get_named_columns(self):
-
-        return zip(self.get_schema_columns(), self.get_column_names_cls())
-
-    @classmethod
-    def get_named_columns_cls(cls):
-
-        return zip(cls.get_schema_columns_cls(), cls.get_column_names_cls())
-
-    @classmethod
-    def get_column_names_cls(cls) -> Generator[str, None, None]:
-        """ Returns class level attribute names (excluding privates and callables) """
-
-        return (attr for attr, value in cls.__dict__.items() if not callable(getattr(cls, attr)) and not attr.startswith("__"))
-
-    @classmethod
-    def get_attribute_name_by_index(cls, index) -> str:
-
-        return list(cls.get_column_names_cls())[index]
+        return zip(cls.get_columns(), cls.get_col_names())
 
     @classmethod
     def __create_table__(cls) -> str:
@@ -68,7 +38,7 @@ class Table:
         sql_properties = list()
         sql_foreign_keys = list()
 
-        for column, prop_name in cls.get_named_columns_cls():
+        for column, prop_name in cls.__get_named_col_pairs__():
             property_components = list()
 
             property_components.append(prop_name)
@@ -107,49 +77,43 @@ class Table:
         return f'DROP TABLE IF EXISTS {cls.get_table_name()};'
 
     @classmethod
-    def table_schema_validation(cls) -> Tuple:
-        """ Validates a table class for errors. Returns a tuple of the format Tuple[bool, List[str]] """
+    def get_table_name(cls) -> str:
+        if issubclass(cls, Table):
+            return cls.__name__
+        else:
+            return cls.__class__.__name__
 
-        no_errors_found: bool = True
-        instance: Table.__subclasses__ = None
-        errors: List = [no_errors_found, list()]
+    @classmethod
+    def get_columns(cls) -> Generator[Column, None, None]:
+        """ Returns the Column objects of a table. Using self.get_table_property_names to guarantee property order """
 
-        try:
-            instance = cls()
-        except AttributeError as e:
-            msg = f'Class level attribute of wrong type encountered. Column expected: {str(e)}'
-            logging.critical(msg)
-            errors[1].append(msg)
-            no_errors_found = False
+        if issubclass(cls, Table):
+            return (value for attr, value in cls.__dict__.items() if isinstance(value, Column))
+        else:
+            return (value for attr, value in cls.__class__.__dict__.items() if isinstance(value, Column))
 
-        if instance:
+    @classmethod
+    def get_col_names(cls) -> Generator[str, None, None]:
+        """ Returns class level attribute names (excluding privates and callables) """
 
-            column_names = (list(instance.get_column_names_cls()))
-            instance_att_names = list(instance.get_instance_attribute_names())
+        if issubclass(cls, Table):
+            return (attr for attr, value in cls.__dict__.items() if isinstance(value, Column))
+        else:
+            return (attr for attr, value in cls.__class__.__dict__.items() if isinstance(value, Column))
 
-            for column_name in column_names:
-                attrib = getattr(cls, column_name)
+    @classmethod
+    def get_col_display_names(cls) -> Tuple[str]:
+        """ Returns the display names of each column if they exist. Fallback is attribute name """
 
-                if not str(type(attrib)).endswith(".Column'>"):
-                    msg = f'Class members not named __member_name__ must be of ' \
-                          f'type -> Column: {column_name} Type: {type(attrib)}'
-                    logging.critical(msg)
-                    errors[1].append(msg)
-                    no_errors_found = False
+        display_names: Generator[str, None, None] \
+            = (getattr(cls, col_name).display_name if getattr(cls, col_name).display_name is not None else col_name
+               for col_name in cls.get_col_names())
 
-            if column_names != instance_att_names:
-                unexpected_attributes = list(set(instance_att_names) - set(column_names))
-                # missing_attributes = list(set(column_names) - set(instance_att_names))
+        return tuple(display_names)
 
-                if unexpected_attributes:
-                    msg = f'Unexpected instance attributes: {str(unexpected_attributes)}'
-                    logging.critical(msg)
-                    errors[1].append(msg)
-                    no_errors_found = False
-
-        errors[0] = no_errors_found
-
-        return tuple(errors)
+    @classmethod
+    def get_attr_name_by_index(cls, index) -> str:
+        return list(cls.get_col_names())[index]
 
     @staticmethod
     def read_blob_file(data):
@@ -166,11 +130,11 @@ class Table:
         self.__init_join_tables__()
 
     def __setup_default_value__(self):
-        [setattr(self, prop_name, column.default) for column, prop_name in self.get_named_columns()]
+        [setattr(self, prop_name, column.default) for column, prop_name in self.__get_named_col_pairs__()]
 
     def __init_join_tables__(self):
 
-        for column, prop_name in self.get_named_columns():
+        for column, prop_name in self.__get_named_col_pairs__():
 
             if not column.fk:
                 continue
@@ -185,31 +149,39 @@ class Table:
         return getattr(self, item)
 
     def __repr__(self) -> str:
-        x = (f'{a} : {b}' for a, b in zip(list(self.get_column_names_cls()), list(self.get_values())))
+        x = (f'{a} : {b}' for a, b in zip(list(self.get_col_names()), list(self.get_values())))
 
         repr_string = f'{self.get_table_name()} ({", ".join(x)})'
 
         return repr_string
 
-    def get_column_display_names(self) -> List[str]:
-        """ Returns the display names of each column if they exist. Fallback is attribute name """
+    def __get_value_by_index__(self, index: int):
+        """ Gets the value of the nth attribute """
 
-        display_names = list()
+        try:
+            return getattr(self, list(self.get_col_names())[index])
+        except:
+            return False
 
-        for attrib in self.get_column_names_cls():
-            display_name = getattr(self.__class__, attrib).display_name
+    def __set_value_by_index__(self, index: int, value) -> bool:
+        """ Sets the value of the nth attribute """
 
-            if not display_name:
-                display_name = attrib
+        try:
+            attrib = list(self.get_col_names())[index]
+            setattr(self, attrib, value)
+            return True
+        except:
+            return False
 
-            display_names.append(display_name)
-
-        return display_names
-
-    def get_instance_attribute_names(self) -> Generator[str, None, None]:
+    def get_attributes(self) -> Generator[str, None, None]:
         """ returns instance level attribute names (excluding privates and callables) """
 
         return (attr for attr, value in self.__dict__.items() if not callable(getattr(self, attr)) and not attr.startswith("__"))
+
+    def get_values(self) -> Generator:
+        """ Returns a generator for all the values """
+
+        return (getattr(self, column_name) for column_name in self.get_col_names())
 
     def add_table_to_join_table_dict(self, key, value) -> None:
 
@@ -219,10 +191,10 @@ class Table:
 
         [self.add_table_to_join_table_dict(join_table_name, self.select_reference_record(db_object, join_table_name)) for join_table_name in self.__join_table_definitions__.keys()]
 
-    def select_reference_record_all(self, db_object: 'Database') -> List['Table']:
+    def select_reference_record_all(self, db_object: 'Database') -> Tuple['Table']:
         """ returning table objects for all join tables """
 
-        return [self.select_reference_record(db_object, join_table_name) for join_table_name in self.__join_table_definitions__.keys()]
+        return tuple((self.select_reference_record(db_object, join_table_name) for join_table_name in self.__join_table_definitions__.keys()))
 
     def select_reference_record(self, db_object: 'Database', join_table_name: str) -> 'Table':
         """ returning table object for a specific join tables """
@@ -250,36 +222,13 @@ class Table:
     def from_sql_record(self, sql_row: List) -> None:
         """ Sets the record values from a sql record of type list """
 
-        for column_name, value in zip(self.get_column_names_cls(), sql_row):
+        for column_name, value in zip(self.get_col_names(), sql_row):
             setattr(self, column_name, value)
-
-    def get_values(self) -> Generator:
-        """ Returns a generator for all the values """
-
-        return (getattr(self, column_name) for column_name in self.get_column_names_cls())
-
-    def get_value_by_index(self, index: int):
-        """ Gets the value of the nth attribute """
-
-        try:
-            return getattr(self, list(self.get_column_names_cls())[index])
-        except:
-            return False
-
-    def set_value_by_index(self, index: int, value):
-        """ Sets the value of the nth attribute """
-
-        try:
-            attrib = list(self.get_column_names_cls())[index]
-            setattr(self, attrib, value)
-            return True
-        except:
-            return False
 
     def reset_to_default(self) -> None:
         """ Resets the values of the instance to the defined default values of each Column """
 
-        for column, column_name in self.get_named_columns():
+        for column, column_name in self.__get_named_col_pairs__():
             setattr(self, column_name, column.default)
 
     def from_json(self, json_string: str) -> None:
@@ -287,7 +236,7 @@ class Table:
 
         json_object = json.loads(json_string)
 
-        for column, column_name in self.get_named_columns():
+        for column, column_name in self.__get_named_col_pairs__():
             setattr(self, column_name, json_object.get(column_name, column.default))
 
     def to_json(self) -> str:
@@ -296,14 +245,15 @@ class Table:
         json_data = dict()
 
         json_data["table_name"] = self.get_table_name()
-        json_data["headers"] = list(self.get_column_names_cls())
+        json_data["headers"] = list(self.get_col_names())
 
-        for prop_name in self.get_column_names_cls():
+        for prop_name in self.get_col_names():
             json_data[prop_name] = getattr(self, prop_name)
 
         return json.dumps(json_data)
 
     def clone(self) -> 'self':
+        """ Returns a deep copy of self """
         return copy.deepcopy(self)
 
 
