@@ -50,29 +50,25 @@ if __name__ == '__main__':
 
     print(City.get_col_display_names())
     city_1 = City()
-    city_1.id = db.increment_id("City", "id")
     city_1.postal_code = 8300
     city_1.city_name = 'Odder'
+    db.insert_record(city_1)
 
-    print('City_1: %s' % city_1)
+    print(f'City_1: {city_1}')
     person_1 = Person()
-    person_1.id = db.increment_id("Person", "id")
     person_1.firstName = 'Albert'
     person_1.lastName = 'Einstein'
     person_1.cityId = city_1.id
 
-    print('Person_1: %s' % person_1)
-    db.insert_record(city_1)
+    print(f'Person_1: {person_1}')
     db.insert_record(person_1)
 
     city_2 = City()
-    city_2.id = db.increment_id("City", "id")
     city_2.postal_code = 8660
     city_2.city_name = 'Skanderborg'
 
     db.insert_record(city_2)
     person_2 = Person()
-    person_2.id = db.increment_id("Person", "id")
     person_2.firstName = 'Niels'
     person_2.lastName = 'Bohr'
     person_2.cityId = city_2.id
@@ -86,7 +82,6 @@ if __name__ == '__main__':
     # properties of city2 to city_json. Then we update some of the fields and insert the record
     city_json = City()
     city_json.from_json(city_2.to_json())
-    city_json.id = db.increment_id("City", "id")
     city_json.cityName = 'Frederiksberg'
     db.insert_record(city_json)
 
@@ -115,13 +110,10 @@ if __name__ == '__main__':
 
     print('\nInserting 10K clones of person_1\n------------------------------------------')
 
-    next_id = db.increment_id('Person')
-
     with DatabaseConnection(db, con_type=ConType.batch):
-        for person_id in range(next_id, next_id + 10000):
+        for clone_number in range(10000):
             new_person = person_1.clone()
-            new_person.id = person_id
-            new_person.firstName += f'_{person_id}'
+            new_person.firstName += f'_{clone_number}'
             db.insert_record(new_person)
 
     for person in db.select_records(Person, 'id < 10'):

@@ -18,7 +18,7 @@ class DataTypes:
             return 'VARCHAR'
 
     smallint = 'SMALLINT'
-    integer = 'INT'
+    integer = 'INTEGER'
     datetime = 'DATETIME'
     blob = 'BLOB'
 
@@ -33,7 +33,6 @@ class Column:
                  default=None,
                  pk: bool=False,
                  fk: 'Table.__subclasses__'=None,
-                 auto_increment: bool=False,
                  unique: bool=False,
                  not_null: bool=False,
                  display_name: str=None):
@@ -42,7 +41,6 @@ class Column:
         self.data_type_var = data_type_var
         self.default = default
         self.pk = pk
-        self.auto_increment = auto_increment
 
         if fk is not None:
             self.fk_table = fk[0]

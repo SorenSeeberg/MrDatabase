@@ -41,11 +41,12 @@ db.drop_table(City)
 ### Records (DML)
 To insert, update or delete records in the database, you need record objects representing what you want to manipulate.
 
+If you have setup an integer primary key on your table, the pimary key attribute will auto increment when inserting records. When you insert, the id of your record object will be updated with the assigned id.
+
 You can create new record objects like the ```city1``` example, where you make an instance of a table class, or you can fetch existing ones from the database using ```db.select_record``` or ```db.select_records```. Lastly you can call ```.clone()``` on the record you want to copy. This method returns a ```copy.deepcopy``` if the record in question.
 
 ```python
 city1 = City()
-city1.id = db.increment_id('City', 'id')
 city1.postal_code = 10115
 city1.city_name = 'Berlin'
 
@@ -69,13 +70,10 @@ To set it up, you use the ```DatabaseConnection``` context manager. You pass it 
 from mr_database import DatabaseConnection
 from mr_database import ConType
 
-next_id: int = db.increment_id('Person')
-
 with DatabaseConnection(db, con_type=ConType.batch):
-    for person_id in range(next_id, next_id + 10000):
+    for clone_number in range(10000):
         new_person = person_1.clone()
-        new_person.id = person_id
-        new_person.firstName += f'_{person_id}'
+        new_person.firstName += f'_{clone_number}'
         db.insert_record(new_person)
 ```
 
@@ -90,6 +88,7 @@ The example above inserts 10.000 clones of a ```Person()``` record. It takes les
 - Refactored database_connection (now DatabaseConnection) to better distinguish between mutation, query and batch.
 - Added ConType enum class (mutation, query, batch)
 - Cleanup, Simplification and Optimization of Table class
+- Added autoincrementation for integer primary keys
 
 ### Version 0.9.4 Alpha
 - Added code examples to README.md

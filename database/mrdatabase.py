@@ -9,7 +9,6 @@ from database.databaseconnection import DatabaseConnection, ConType
 from database.table import Table
 from database.records import Records
 
-# from flask import Markup
 VERSION = '0.9.5 Alpha'
 
 
@@ -54,11 +53,6 @@ class MrDatabase:
             logging.info(sql)
             self.cur.execute(sql)
 
-    # @staticmethod
-    # def html_markup(record_object):
-    #
-    #     record_object.html.val = Markup(record_object.html.val)
-
     def fetchone(self, sql: str) -> Tuple:
 
         with DatabaseConnection(self, con_type=ConType.query):
@@ -73,7 +67,7 @@ class MrDatabase:
 
             return self.cur.fetchall()
 
-    def __mutate__(self, sql: str, value_list: List[Any]=None) -> None:
+    def __mutate__(self, sql: str, value_list: List[Any]=None, return_id=False) -> int:
 
         with DatabaseConnection(self, con_type=ConType.mutation):
 
@@ -81,6 +75,12 @@ class MrDatabase:
                 self.cur.execute(sql, value_list)
             else:
                 self.cur.execute(sql)
+
+            if return_id:
+                self.cur.execute('SELECT last_insert_rowid()')
+                return self.cur.fetchone()[0]
+
+        return -1
 
     def sub_transaction(self, sql: str, value_list: List[Any]=None) -> None:
         """
@@ -133,18 +133,24 @@ class MrDatabase:
     def insert_record(self, record_object: Table.__subclasses__) -> str:
         """Constructing the sql for inserting a record"""
 
-        table_name = record_object.get_table_name()
-        attributes = list(record_object.get_col_names())
-        values = list(record_object.get_values())
+        # in case of integer primary key attributes, the attribute is auto incrementing.
+        # in this case we need to omit the a attribute from the sql statement.
+        int_pks = record_object.__class__.has_int_pk()
 
-        values_string = ", ".join(len(attributes) * ['?'])
+        pairs = list(zip(record_object.get_col_names(), record_object.get_values()))
+        table_name = record_object.get_table_name()
+
+        attributes = [p[0] for p in pairs if p[0] not in int_pks]
+        values = [p[1] for p in pairs if p[0] not in int_pks]
+
+        values_string = ", ".join(['?'] * len(attributes))
         attributes_string = ", ".join((str(attribute) for attribute in attributes))
 
         sql = f'INSERT INTO {table_name}({attributes_string}) VALUES ({values_string});'
 
         logging.info(f'INSERT RECORD: {sql} {values}')
 
-        self.__mutate__(sql, list(values))
+        record_object.id = self.__mutate__(sql, list(values), return_id=len(int_pks) > 0)
 
         return sql
 
@@ -189,7 +195,6 @@ class MrDatabase:
             sql_comps.append(f'LIMIT {limit}')
 
         sql_comps.append(';')
-
         sql = ' '.join(sql_comps)
 
         logging.info(f'GET RECORDS: {sql}')

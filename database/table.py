@@ -45,7 +45,10 @@ class Table:
             property_components.append(column.data_type)
 
             if column.pk:
-                property_components.append('PRIMARY KEY')
+                if column.data_type == column.data_types.integer:
+                    property_components.append('PRIMARY KEY AUTOINCREMENT')
+                else:
+                    property_components.append('PRIMARY KEY')
 
             if column.default is not None:
                 property_components.append(f'DEFAULT {DataFormatting.value_to_string(column, column.default, default=True)}')
@@ -75,6 +78,11 @@ class Table:
         """Constructs the needed sql statements to drop a database table from a Table class"""
 
         return f'DROP TABLE IF EXISTS {cls.get_table_name()};'
+
+    @classmethod
+    def has_int_pk(cls) -> Tuple[str]:
+        return tuple(col_pair[1] for col_pair in cls.__get_named_col_pairs__()
+                      if col_pair[0].pk and col_pair[0].data_type == Column.data_types.integer)
 
     @classmethod
     def get_table_name(cls) -> str:
