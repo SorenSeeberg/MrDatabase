@@ -1,5 +1,6 @@
 from PySide2 import QtGui, QtCore, QtWidgets
 from mr_database import MrDatabase
+from mr_database import ConType
 from mr_database import Table
 from mr_database import Records
 from database.databaseconnection import DatabaseConnection
@@ -72,9 +73,8 @@ class LocalTableModel(QtCore.QAbstractTableModel):
         self.beginInsertRows(parent, position, position)
 
         new_record: Table.__subclasses__ = self.__table__()
-        new_record.id = self.database.increment_id(new_record.get_table_name())
-        self.__records__.append(new_record)
         self.database.insert_record(new_record)
+        self.__records__.append(new_record)
 
         self.endInsertRows()
 
@@ -86,19 +86,16 @@ class LocalTableModel(QtCore.QAbstractTableModel):
 
         to_be_deleted = list()
 
-        with DatabaseConnection(self.__database__, commit=True):
+        with DatabaseConnection(self.__database__, con_type=ConType.batch):
 
             for i in range(position, position + rows):
-
                 record = self.__records__[i]
-
-                self.database.sub_transaction(self.__database__.delete_record(record, commit=False))
+                self.__database__.delete_record(record)
                 to_be_deleted.append(record)
 
         # deleting the row objects in a second pass to not mess with the list indices
         # while interacting with the database
-        for record in to_be_deleted:
-            self.__records__.remove(record)
+        [self.__records__.remove(record) for record in to_be_deleted]
 
         self.endRemoveRows()
 

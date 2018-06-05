@@ -82,17 +82,6 @@ class MrDatabase:
 
         return -1
 
-    def sub_transaction(self, sql: str, value_list: List[Any]=None) -> None:
-        """
-        Executing sql without a connection. The connection must come
-        from elsewhere. This allows for transaction-like sql execution
-        """
-
-        if value_list:
-            self.cur.execute(sql, value_list)
-        else:
-            self.cur.execute(sql)
-
     def delete_record(self, record_object: Table.__subclasses__, condition: str=None) -> str:
         """Constructing the sql for deleting a record"""
 

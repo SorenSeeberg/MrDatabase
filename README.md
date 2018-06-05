@@ -38,6 +38,27 @@ db.create_table(City)
 db.drop_table(City)
 ```
 
+### Type Hinting
+
+If you want Python 3 style type hints on your record intances, you will have to be a bit more verbose in how you define the table class.
+
+You will have to make an ```__init__``` method, initialize the super class and add each of the attributes, with type hint and set the default value from the class level ```Column``` objects. It may sound complicated, but if you look below, it's quite doable. Type hinting can be extremely helpful. Especially if you use an editor like PyCharm.
+
+```Python
+class City(Table):
+
+    id = Column(DataTypes.integer, pk=True)
+    postalCode = Column(DataTypes.smallint, default=9999)
+    cityName = Column(DataTypes.varchar(40), default='New York')
+
+    def __init__(self):
+        super().__init__()
+
+        self.id: int = City.id.default
+        self.postalCode: int = City.postalCode.default
+        self.cityName: str = City.cityName.default
+```
+
 ### Records (DML)
 To insert, update or delete records in the database, you need record objects representing what you want to manipulate.
 
@@ -79,6 +100,7 @@ with DatabaseConnection(db, con_type=ConType.batch):
 
 The example above inserts 10.000 clones of a ```Person()``` record. It takes less than 500ms.
 
+
 # Release Notes
 ### Version 0.9.5 Alpha
 - Added code example of how to do batching of sql commands (10K rows in less than half a sec)
@@ -87,8 +109,12 @@ The example above inserts 10.000 clones of a ```Person()``` record. It takes les
 - Experimented with script generation, but performance is too terrible
 - Refactored database_connection (now DatabaseConnection) to better distinguish between mutation, query and batch.
 - Added ConType enum class (mutation, query, batch)
-- Cleanup, Simplification and Optimization of Table class
+- Cleanup, simplification and optimization of Table class
+- Cleanup, simplification and optimization of MrDatabase class
 - Added autoincrementation for integer primary keys
+- Changed the pyside demo to use the new DatabaseConnection
+- Added record instance type hint example to documentation
+
 
 ### Version 0.9.4 Alpha
 - Added code examples to README.md

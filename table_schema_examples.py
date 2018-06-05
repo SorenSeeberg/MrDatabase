@@ -31,6 +31,13 @@ class City(Table):
     postalCode = Column(DataTypes.smallint, default=9999, display_name='Postal Code')
     cityName = Column(DataTypes.varchar(40), default='New York', display_name='City Name')
 
+    def __init__(self):
+        super().__init__()
+
+        self.id: int = City.id.default
+        self.postalCode: int = City.postalCode.default
+        self.cityName: str = City.cityName.default
+
 
 class Person(Table):
 

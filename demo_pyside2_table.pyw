@@ -89,26 +89,23 @@ class DatabaseTableWidget(QtWidgets.QWidget):
 if __name__ == '__main__':
 
     MrDatabase.logging(level=LogLevel.info)
-    db = MrDatabase(os.path.join(os.path.abspath(os.path.join(__file__, os.pardir)), 'test.db'))
+    db = MrDatabase(os.path.join(os.path.abspath(os.path.join(__file__, os.pardir)), 'test_pyside.db'))
 
     db.create_table(City)
-    next_id = db.increment_id('City', 'id')
 
-    if next_id == 0:
+    if db.increment_id('City', 'id') == 0:
+
         city1 = City()
-        city1.id = db.increment_id('City', 'id')
         city1.postalCode = 8300
         city1.cityName = 'Odder'
         db.insert_record(city1)
 
         city2 = City()
-        city2.id = db.increment_id('City', 'id')
         city2.postalCode = 8660
         city2.cityName = 'Skanderborg'
         db.insert_record(city2)
 
         city3 = City()
-        city3.id = db.increment_id('City', 'id')
         city3.postalCode = 2500
         city3.cityName = 'Valby'
         db.insert_record(city3)
