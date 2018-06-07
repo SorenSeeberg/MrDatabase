@@ -9,7 +9,7 @@ from database.databaseconnection import DatabaseConnection, ConType
 from database.table import Table
 from database.records import Records
 
-VERSION = '0.9.5 Alpha'
+VERSION = '0.9.6 Alpha'
 
 
 class LogLevel:
@@ -39,19 +39,28 @@ class MrDatabase:
         self.cur: sqlite.Cursor = None
         self.database_path = database_path
 
-    def create_table(self, table_class: Table.__subclasses__, con_type=ConType.query):
+    def create_table(self, table_class: Table.__subclasses__, con_type=ConType.mutation):
 
         with DatabaseConnection(self, con_type=con_type):
             sql = table_class.__create_table__()
             logging.info(sql)
             self.cur.execute(sql)
 
-    def drop_table(self, table_class: Table.__subclasses__, con_type=ConType.query):
+    def drop_table(self, table_class: Table.__subclasses__, con_type=ConType.mutation):
 
         with DatabaseConnection(self, con_type=con_type):
             sql = table_class.__drop_table__()
             logging.info(sql)
             self.cur.execute(sql)
+
+    def table_exists(self, table_class: Table.__subclasses__, con_type=ConType.mutation) -> bool:
+
+        sql = f"SELECT count(*) FROM sqlite_master WHERE type='table' AND name='{table_class.get_table_name()}';"
+
+        with DatabaseConnection(self, con_type=ConType.query):
+            self.cur.execute(sql)
+
+            return bool(self.cur.fetchone()[0])
 
     def fetchone(self, sql: str) -> Tuple:
 

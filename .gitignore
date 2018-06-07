@@ -5,3 +5,4 @@ mr_database.log
 .idea/*
 __pycache__/*
 */__pycache__/*
+tests/test_database.db

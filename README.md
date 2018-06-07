@@ -1,4 +1,4 @@
-# MrDatabase v. 0.9.5 Alpha
+# MrDatabase v. 0.9.6 Alpha
 Databasing as easy as it gets!
 
 ## Simple Code Examples
@@ -102,6 +102,10 @@ The example above inserts 10.000 clones of a ```Person()``` record. It takes les
 
 
 # Release Notes
+### Version 0.9.6 Alpha
+- Added pytest code for most functionality
+- Added MrDatabase.table_exists
+
 ### Version 0.9.5 Alpha
 - Added code example of how to do batching of sql commands (10K rows in less than half a sec)
 - Added documentation of how to do batching of sql commands

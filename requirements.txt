@@ -1,0 +1,2 @@
+pytest
+pyside2
