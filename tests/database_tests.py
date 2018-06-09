@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
 import os
 from mr_database import MrDatabase
 from mr_database import DatabaseConnection

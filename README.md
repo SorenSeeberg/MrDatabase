@@ -110,6 +110,7 @@ The example above inserts 10.000 clones of a ```Person()``` record. It takes les
 - Moved demo code into /samples/ module
 - Updated .gitignore to reflect changes
 - Updated documentation (batching)
+- run_tests.bat now assumes python.exe is on PATH
 
 ### Version 0.9.5 Alpha
 - Added code example of how to do batching of sql commands (10K rows in less than half a sec)
