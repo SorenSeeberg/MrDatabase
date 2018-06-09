@@ -83,9 +83,9 @@ db.delete_record(city1)
 ```
 
 ### Batching
-By default, mutating actions like ```insert_record``` and ```update_record```, commit changes to the database one command at a time. This is very easy to work with, but for heavy work loads, this can be quite taxing on performance. If you need to call many mutating sql commands you can batch commands together to dramatically improve performance.
+By default, mutating actions like ```insert_record``` and ```update_record```, commit changes to the database one action at a time. This is very easy to work with, but for heavy work loads, this can be quite taxing on performance. If you need to execute many mutating actions you can batch actions together to dramatically improve performance.
 
-To set it up, you use the ```DatabaseConnection``` context manager. You pass it the ```db``` object and set ```con_type=ConType.batch```. All database actions called within the ```DatabaseConnection``` will use the database connection managed by this context manager. This causes a dramatic increase in performance when performaing many database database actions.
+To set it up, you use the ```DatabaseConnection``` context manager. You pass it the ```db``` object and set ```con_type=ConType.batch```. All database actions called within the ```DatabaseConnection``` will use the database connection managed by ```DatabaseConnection```.
 
 ```python
 from mr_database import DatabaseConnection
@@ -98,7 +98,7 @@ with DatabaseConnection(db, con_type=ConType.batch):
         db.insert_record(new_person)
 ```
 
-The example above inserts 10.000 clones of a ```Person()``` record. It takes less than 500ms.
+The example above inserts 10.000 clones of a ```Person()``` record. It takes less than 500 ms on a standard laptop ano 2017.
 
 
 # Release Notes
@@ -109,6 +109,7 @@ The example above inserts 10.000 clones of a ```Person()``` record. It takes les
 - Renamed get_referenced_record_all to select_join_record_all
 - Moved demo code into /samples/ module
 - Updated .gitignore to reflect changes
+- Updated documentation (batching)
 
 ### Version 0.9.5 Alpha
 - Added code example of how to do batching of sql commands (10K rows in less than half a sec)
