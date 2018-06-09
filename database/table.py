@@ -197,14 +197,14 @@ class Table:
 
     def fetch_join_tables(self, db_object: 'Database') -> None:
 
-        [self.add_table_to_join_table_dict(join_table_name, self.select_reference_record(db_object, join_table_name)) for join_table_name in self.__join_table_definitions__.keys()]
+        [self.add_table_to_join_table_dict(join_table_name, self.select_join_record(db_object, join_table_name)) for join_table_name in self.__join_table_definitions__.keys()]
 
-    def select_reference_record_all(self, db_object: 'Database') -> Tuple['Table']:
+    def select_join_record_all(self, db_object: 'Database') -> Tuple['Table']:
         """ returning table objects for all join tables """
 
-        return tuple((self.select_reference_record(db_object, join_table_name) for join_table_name in self.__join_table_definitions__.keys()))
+        return tuple((self.select_join_record(db_object, join_table_name) for join_table_name in self.__join_table_definitions__.keys()))
 
-    def select_reference_record(self, db_object: 'Database', join_table_name: str) -> 'Table':
+    def select_join_record(self, db_object: 'Database', join_table_name: str) -> 'Table':
         """ returning table object for a specific join tables """
 
         fk_table_info = self.__join_table_definitions__.get(join_table_name)

@@ -1,1 +1,1 @@
-C:\Users\Seeberg\AppData\Local\Programs\Python\Python36\python.exe -m pytest -v database_tests.py
+C:\Users\zeega\AppData\Local\Programs\Python\Python36\python.exe -m pytest -v database_tests.py

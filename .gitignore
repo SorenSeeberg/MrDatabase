@@ -1,8 +1,8 @@
-test.db
-test_pyside.db
-test_functionality.db
-mr_database.log
 .idea/*
 __pycache__/*
 */__pycache__/*
+samples/mr_database.log
+samples/test.db
+samples/test_functionality.db
+samples/test_pyside.db
 tests/test_database.db

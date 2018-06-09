@@ -105,6 +105,10 @@ The example above inserts 10.000 clones of a ```Person()``` record. It takes les
 ### Version 0.9.6 Alpha
 - Added pytest code for most functionality
 - Added MrDatabase.table_exists
+- Renamed get_referenced_record to get_join_record
+- Renamed get_referenced_record_all to select_join_record_all
+- Moved demo code into /samples/ module
+- Updated .gitignore to reflect changes
 
 ### Version 0.9.5 Alpha
 - Added code example of how to do batching of sql commands (10K rows in less than half a sec)
@@ -116,7 +120,7 @@ The example above inserts 10.000 clones of a ```Person()``` record. It takes les
 - Cleanup, simplification and optimization of Table class
 - Cleanup, simplification and optimization of MrDatabase class
 - Added autoincrementation for integer primary keys
-- Changed the pyside demo to use the new DatabaseConnection
+- Changed the pyside samples to use the new DatabaseConnection
 - Added record instance type hint example to documentation
 
 

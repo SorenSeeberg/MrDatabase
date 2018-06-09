@@ -39,19 +39,33 @@ class MrDatabase:
         self.cur: sqlite.Cursor = None
         self.database_path = database_path
 
-    def create_table(self, table_class: Table.__subclasses__, con_type=ConType.mutation):
+    def create_table(self, table_class: Table.__subclasses__, con_type=ConType.mutation) -> bool:
+        try:
 
-        with DatabaseConnection(self, con_type=con_type):
-            sql = table_class.__create_table__()
-            logging.info(sql)
-            self.cur.execute(sql)
+            with DatabaseConnection(self, con_type=con_type):
+                sql = table_class.__create_table__()
+                logging.info(sql)
 
-    def drop_table(self, table_class: Table.__subclasses__, con_type=ConType.mutation):
+                self.cur.execute(sql)
+                return True
 
-        with DatabaseConnection(self, con_type=con_type):
-            sql = table_class.__drop_table__()
-            logging.info(sql)
-            self.cur.execute(sql)
+        except:
+
+            return False
+
+    def drop_table(self, table_class: Table.__subclasses__, con_type=ConType.mutation) -> bool:
+        try:
+
+            with DatabaseConnection(self, con_type=con_type):
+                sql = table_class.__drop_table__()
+                logging.info(sql)
+
+                self.cur.execute(sql)
+                return True
+
+        except:
+
+            return False
 
     def table_exists(self, table_class: Table.__subclasses__, con_type=ConType.mutation) -> bool:
 

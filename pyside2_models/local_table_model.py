@@ -3,7 +3,7 @@ from mr_database import MrDatabase
 from mr_database import ConType
 from mr_database import Table
 from mr_database import Records
-from database.databaseconnection import DatabaseConnection
+from mr_database import DatabaseConnection
 
 
 class LocalTableModel(QtCore.QAbstractTableModel):
