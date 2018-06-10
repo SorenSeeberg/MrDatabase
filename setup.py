@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='MrDatabase',
-    version='0.9.6',
+    version='0.9.8',
     author='Seeberg',
     author_email='soren.seeberg@gmail.com',
     description='Databasing as easy as it gets!',

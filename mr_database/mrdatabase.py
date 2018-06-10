@@ -9,7 +9,7 @@ from mr_database.databaseconnection import DatabaseConnection, ConType
 from mr_database.table import Table
 from mr_database.records import Records
 
-VERSION = '0.9.6 Alpha'
+VERSION = '0.9.8'
 
 
 class LogLevel:

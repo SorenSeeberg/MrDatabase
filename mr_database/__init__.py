@@ -6,4 +6,4 @@ from mr_database.mrdatabase import LogLevel
 from mr_database.column import Column
 from mr_database.column import DataTypes
 
-name = 'MrDatabase'
+name = 'mrdatabase'

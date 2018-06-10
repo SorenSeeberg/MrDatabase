@@ -1,7 +1,11 @@
-# MrDatabase v. 0.9.6 Alpha
+# MrDatabase v. 0.9.8
 Databasing as easy as it gets!
 
 ## Simple Code Examples
+
+### Installation
+
+`pip install mrdatabase`
 
 ### Create a Database
 
@@ -42,7 +46,7 @@ db.drop_table(City)
 
 If you want Python 3 style type hints on your record intances, you will have to be a bit more verbose in how you define the table class.
 
-You will have to make an ```__init__``` method, initialize the super class and add each of the attributes, with type hint and set the default value from the class level ```Column``` objects. It may sound complicated, but if you look below, it's quite doable. Type hinting can be extremely helpful. Especially if you use an editor like PyCharm.
+You will have to make an `__init__` method, initialize the super class and add each of the attributes, with type hint and set the default value from the class level ```Column``` objects. It may sound complicated, but if you look below, it's quite doable. Type hinting can be extremely helpful. Especially if you use an editor like PyCharm.
 
 ```Python
 class City(Table):
@@ -64,7 +68,7 @@ To insert, update or delete records in the database, you need record objects rep
 
 If you have setup an integer primary key on your table, the pimary key attribute will auto increment when inserting records. When you insert, the id of your record object will be updated with the assigned id.
 
-You can create new record objects like the ```city1``` example, where you make an instance of a table class, or you can fetch existing ones from the database using ```db.select_record``` or ```db.select_records```. Lastly you can call ```.clone()``` on the record you want to copy. This method returns a ```copy.deepcopy``` if the record in question.
+You can create new record objects like the `city1` example, where you make an instance of a table class, or you can fetch existing ones from the database using `db.select_record` or `db.select_records`. Lastly you can call `.clone()` on the record you want to copy. This method returns a `copy.deepcopy` if the record in question.
 
 ```python
 city1 = City()
@@ -83,9 +87,9 @@ db.delete_record(city1)
 ```
 
 ### Batching
-By default, mutating actions like ```insert_record``` and ```update_record```, commit changes to the database one action at a time. This is very easy to work with, but for heavy work loads, this can be quite taxing on performance. If you need to execute many mutating actions you can batch actions together to dramatically improve performance.
+By default, mutating actions like `insert_record` and `update_record`, commit changes to the database one action at a time. This is very easy to work with, but for heavy work loads, this can be quite taxing on performance. If you need to execute many mutating actions you can batch actions together to dramatically improve performance.
 
-To set it up, you use the ```DatabaseConnection``` context manager. You pass it the ```db``` object and set ```con_type=ConType.batch```. All database actions called within the ```DatabaseConnection``` will use the database connection managed by ```DatabaseConnection```.
+To set it up, you use the `DatabaseConnection` context manager. You pass it the `db` object and set `con_type=ConType.batch`. All database actions called within the `DatabaseConnection` will use the database connection managed by `DatabaseConnection`.
 
 ```python
 from mr_database import DatabaseConnection
@@ -102,6 +106,13 @@ The example above inserts 10.000 clones of a ```Person()``` record. It takes les
 
 
 # Release Notes
+
+### Version 0.9.8
+- Renaming project name from mr_database to mrdatabase 
+
+### Version 0.9.7
+- Renaming project name from MrDatabase to mr_database 
+
 ### Version 0.9.6 Alpha
 - Added pytest code for most functionality
 - Added MrDatabase.table_exists
@@ -129,8 +140,8 @@ The example above inserts 10.000 clones of a ```Person()``` record. It takes les
 
 ### Version 0.9.4 Alpha
 - Added code examples to README.md
-- Renamed ```MrDatabase.get_next_id``` to ```MrDatabase.increment_id```
-- changed ```MrDatabase()``` to simply take a path instead of path and db name as separate arguments
+- Renamed `MrDatabase.get_next_id` to `MrDatabase.increment_id`
+- changed `MrDatabase()` to simply take a path instead of path and db name as separate arguments
 - created unified namespace for imports
 
 ### Version 0.9.3 Alpha
