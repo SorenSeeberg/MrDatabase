@@ -6,3 +6,5 @@ samples/test.db
 samples/test_functionality.db
 samples/test_pyside.db
 tests/test_database.db
+build/*
+dist/*

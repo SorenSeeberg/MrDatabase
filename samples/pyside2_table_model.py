@@ -94,7 +94,7 @@ class LocalTableModel(QtCore.QAbstractTableModel):
                 to_be_deleted.append(record)
 
         # deleting the row objects in a second pass to not mess with the list indices
-        # while interacting with the database
+        # while interacting with the mr_database
         [self.__records__.remove(record) for record in to_be_deleted]
 
         self.endRemoveRows()
