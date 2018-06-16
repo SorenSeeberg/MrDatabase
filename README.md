@@ -121,7 +121,7 @@ class Tag(Table):
     tagName = Column(DataTypes.varchar(40))
 ```
 
-Then you create a table, describing a relation between an image and a tag. I also like to give this table an id. Another way is to use the two foreign keys in combination as a ´composite key´.
+Then you create a table, describing a relation between an image and a tag. I also like to give this table an id. Another way is to use the two foreign keys in combination as a `composite key`.
 
 ```Python
 class ImageTag(Table):
@@ -130,7 +130,7 @@ class ImageTag(Table):
     tagId = Column(DataTypes.integer, fk=(Tag, 'id'))
 ```
 
-When creating the tables in the database, remember to do it in the right order. ´ImageTag´ depends on `Image` and `Tag`, so you should create the junktion table last.
+When creating the tables in the database, remember to do it in the right order. `ImageTag` depends on `Image` and `Tag`, so you should create the junktion table last.
 
 ```Python
 db.create_table(Image)
