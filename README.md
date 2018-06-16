@@ -104,7 +104,7 @@ with DatabaseConnection(db, con_type=ConType.batch):
 
 The example above inserts 10.000 clones of a `Person()` record. It takes less than 500 ms on a standard laptop ano 2017.
 
-### Setup a Many to Many Relationship
+### Many to Many Relationships
 
 As an example we have some images that can have some tags. This is a classic many to many relationship. To set it up you create the `Image` and the `Tag` table with no knowledge of or reference to eachother.
 
@@ -138,7 +138,7 @@ db.create_table(Tag)
 db.create_table(ImageTag)
 ```
 
-### Setup a Self Referencing Table
+### Self Referencing Table
 
 When creating a self referencing table, Python won't let you pass in the class object to the Column class. Instead, add the class name as a string. Only do this for self referencing!
 
