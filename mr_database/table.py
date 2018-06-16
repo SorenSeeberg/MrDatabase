@@ -65,8 +65,12 @@ class Table:
                 sql_properties.append(' '.join(property_components))
 
             if column.fk:
-                sql_foreign_keys.append(f'FOREIGN KEY ({prop_name}) '
-                                        f'REFERENCES {column.fk_table.get_table_name()}({column.fk_property})')
+                if hasattr(column, 'fk_table'):
+                    sql_foreign_keys.append(f'FOREIGN KEY ({prop_name}) '
+                                            f'REFERENCES {column.fk_table.get_table_name()}({column.fk_property})')
+                elif hasattr(column, 'fk_table_name'):
+                    sql_foreign_keys.append(f'FOREIGN KEY ({prop_name}) '
+                                            f'REFERENCES {column.fk_table_name}({column.fk_property})')
 
         sql.append(', \n'.join(sql_properties + sql_foreign_keys))
         sql.append(');')
@@ -81,8 +85,7 @@ class Table:
 
     @classmethod
     def has_int_pk(cls) -> Tuple[str]:
-        return tuple(col_pair[1] for col_pair in cls.__get_named_col_pairs__()
-                      if col_pair[0].pk and col_pair[0].data_type == Column.data_types.integer)
+        return tuple(col_pair[1] for col_pair in cls.__get_named_col_pairs__() if col_pair[0].pk and col_pair[0].data_type == Column.data_types.integer)
 
     @classmethod
     def get_table_name(cls) -> str:
@@ -147,11 +150,18 @@ class Table:
             if not column.fk:
                 continue
 
+            if hasattr(column, 'fk_table'):
+                join_table_class = column.fk_table
+                fk_table_name = column.fk_table.__name__
+            else:
+                join_table_class = self.__class__
+                fk_table_name = column.fk_table_name
+
             # todo : simplify the dict . . just the column is needed
-            self.__join_table_definitions__[column.fk_table.__name__] = {'table_class': column.fk_table,
-                                                                         'fk': column.fk_property,
-                                                                         'property': prop_name,
-                                                                         'column': column}
+            self.__join_table_definitions__[fk_table_name] = {'table_class': join_table_class,
+                                                              'fk': column.fk_property,
+                                                              'property': prop_name,
+                                                              'column': column}
 
     def __getitem__(self, item):
         return getattr(self, item)

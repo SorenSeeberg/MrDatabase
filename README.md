@@ -1,5 +1,5 @@
-# MrDatabase v. 0.9.8
-Databasing as easy as it gets!
+# MrDatabase v. 0.9.9
+Databasing as easy as it gets! An ORM on top of SQLite3
 
 ## Simple Code Examples
 
@@ -102,13 +102,63 @@ with DatabaseConnection(db, con_type=ConType.batch):
         db.insert_record(new_person)
 ```
 
-The example above inserts 10.000 clones of a ```Person()``` record. It takes less than 500 ms on a standard laptop ano 2017.
+The example above inserts 10.000 clones of a `Person()` record. It takes less than 500 ms on a standard laptop ano 2017.
 
+### Setup a Many to Many Relationship
+
+As an example we have some images that can have some tags. This is a classic many to many relationship. To set it up you create the ´Image´ and the ´Tag´ table with no knowledge of eachother.
+
+```Python
+class Image(Table):
+    id = Column(DataTypes.integer, pk=True)
+    imageName = Column(DataTypes.varchar(40))
+    sizeX = Column(DataTypes.integer)
+    sizeY = Column(DataTypes.integer)
+
+
+class Tag(Table):
+    id = Column(DataTypes.integer, pk=True)
+    tagName = Column(DataTypes.varchar(40))
+```
+
+Then you create a table, describing a relation between an image and a tag. I also like to give this table an id. Another way is to use the two foreign keys in combination as a ´composite key´.
+
+```Python
+class ImageTag(Table):
+    id = Column(DataTypes.integer, pk=True)
+    imageId = Column(DataTypes.integer, fk=(Image, 'id'))
+    tagId = Column(DataTypes.integer, fk=(Tag, 'id'))
+```
+
+When creating the tables in the database, remember to do it in the right order. ´ImageTag´ depends on `Image` and `Tag`, so you should create the junktion table last.
+
+```Python
+db.create_table(Image)
+db.create_table(Tag)
+db.create_table(ImageTag)
+```
+
+### Setup a Self Referencing Table
+
+When creating a self referencing table, Python won't let you pass in the class object to the Column class. Instead, add the class name as a string. Only do this for self referencing!
+
+```Python
+class Tag(Table):
+    id = Column(DataTypes.integer, pk=True)
+    tagName = Column(DataTypes.varchar(40))
+    parentId = Column(DataTypes.integer, fk=('Tag', 'id')
+```
 
 # Release Notes
 
+### Version 0.9.9
+- Added documentation of many to many relationships
+- Added test for junction tables
+- Added support for self referencing tables
+- Added test for self referencing tables
+
 ### Version 0.9.8
-- Renaming project name from mr_database to mrdatabase 
+- Renaming project name from mr_database to mrdatabase
 
 ### Version 0.9.7
 - Renaming project name from MrDatabase to mr_database 
@@ -128,7 +178,7 @@ The example above inserts 10.000 clones of a ```Person()``` record. It takes les
 - Added code example of how to do batching of sql commands (10K rows in less than half a sec)
 - Added documentation of how to do batching of sql commands
 - Added .clone() to record objects (based on copy.deepcopy)
-- Experimented with script generation, but performance is too terrible
+- Experimented with script generation, but performance is too te rrible
 - Refactored database_connection (now DatabaseConnection) to better distinguish between mutation, query and batch.
 - Added ConType enum class (mutation, query, batch)
 - Cleanup, simplification and optimization of Table class

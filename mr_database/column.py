@@ -42,12 +42,18 @@ class Column:
         self.default = default
         self.pk = pk
 
-        if fk is not None:
+        if not fk:
+            self.fk = False
+
+        elif type(fk[0]) == str:
+            self.fk_table_name = fk[0]
+            self.fk_property = fk[1]
+            self.fk = True
+
+        else:
             self.fk_table = fk[0]
             self.fk_property = fk[1]
             self.fk = True
-        else:
-            self.fk = False
 
         self.unique = unique
         self.not_null = not_null

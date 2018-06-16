@@ -34,10 +34,41 @@ class Person(Table):
     cityId = Column(data_type=DataTypes.integer, fk=(City, 'id'), default=0)
 
 
-def test_database_creation():
+class Image(Table):
+    id = Column(DataTypes.integer, pk=True)
+    imageName = Column(DataTypes.varchar(40))
+    sizeX = Column(DataTypes.integer)
+    sizeY = Column(DataTypes.integer)
+
+
+class Tag(Table):
+    id = Column(DataTypes.integer, pk=True)
+    tagName = Column(DataTypes.varchar(40))
+
+
+class ImageTag(Table):
+    id = Column(DataTypes.integer, pk=True)
+    imageId = Column(DataTypes.integer, fk=(Image, 'id'))
+    tagId = Column(DataTypes.integer, fk=(Tag, 'id'))
+
+
+class TagSelfRef(Table):
+    id = Column(DataTypes.integer, pk=True)
+    tagName = Column(DataTypes.varchar(40))
+    parentId = Column(DataTypes.integer, fk=('TagSelfRef', 'id'), default=-1)
+
+
+def delete_database():
 
     if os.path.isfile(DB_PATH):
-        os.remove(DB_PATH)
+        try:
+            os.remove(DB_PATH)
+        except IOError:
+            print('File not accessible')
+
+
+def test_database_creation():
+    delete_database()
 
     db = MrDatabase(DB_PATH)
     db.create_table(City)
@@ -47,18 +78,18 @@ def test_database_creation():
 
 
 def test_create_table():
+    delete_database()
 
     db = MrDatabase(DB_PATH)
-    db.drop_table(City)
     success = db.create_table(City)
 
     assert (success is True)
 
 
 def test_drop_table():
+    delete_database()
 
     db = MrDatabase(DB_PATH)
-    db.drop_table(City)
     db.create_table(City)
     success = db.drop_table(City)
 
@@ -66,6 +97,7 @@ def test_drop_table():
 
 
 def test_table_not_exists():
+    delete_database()
 
     db = MrDatabase(DB_PATH)
     table_exists = db.table_exists(City)
@@ -74,6 +106,7 @@ def test_table_not_exists():
 
 
 def test_table_exists():
+    delete_database()
 
     db = MrDatabase(DB_PATH)
     db.create_table(City)
@@ -83,6 +116,7 @@ def test_table_exists():
 
 
 def test_insert_row():
+    delete_database()
 
     db = MrDatabase(DB_PATH)
     db.create_table(City)
@@ -95,11 +129,10 @@ def test_insert_row():
 
 
 def test_delete_row():
+    delete_database()
 
     db = MrDatabase(DB_PATH)
-    db.drop_table(City)
     db.create_table(City)
-
     db.insert_record(City())
 
     id_condition = 'id=1'
@@ -119,9 +152,10 @@ def test_delete_row():
 
 
 def test_batch_insert_records():
+    delete_database()
+
     db = MrDatabase(DB_PATH)
 
-    db.drop_table(City)
     db.create_table(City)
     city_1 = City()
 
@@ -137,9 +171,8 @@ def test_batch_insert_records():
 
 
 def test_batch_update_records():
+    delete_database()
     db = MrDatabase(DB_PATH)
-
-    db.drop_table(City)
     db.create_table(City)
     city_1 = City()
 
@@ -163,6 +196,7 @@ def test_batch_update_records():
 
 
 def test_clone_record():
+    delete_database()
     city = City()
     city_clone = city.clone()
 
@@ -170,10 +204,10 @@ def test_clone_record():
 
 
 def test_join_table():
+    delete_database()
+
     db = MrDatabase(DB_PATH)
 
-    db.drop_table(City)
-    db.drop_table(Person)
     db.create_table(City)
     db.create_table(Person)
 
@@ -191,6 +225,42 @@ def test_join_table():
     assert(city_record.id == 1)
 
 
+def test_create_junction_table():
+    delete_database()
+
+    db = MrDatabase(DB_PATH)
+
+    db.create_table(Image)
+    db.create_table(Tag)
+    db.create_table(ImageTag)
+
+    db.insert_record(Image())
+    db.insert_record(Tag())
+
+    image_tag = ImageTag()
+    image_tag.imageId = 1
+    image_tag.tagId = 1
+
+    db.insert_record(image_tag)
+
+    image_tag: ImageTag = db.select_records(ImageTag)[0]
+
+    assert (image_tag.id == 1 and image_tag.tagId == 1 and image_tag.imageId == 1)
+
+
+def test_create_self_referencing_table():
+    delete_database()
+
+    db = MrDatabase(DB_PATH)
+
+    db.create_table(TagSelfRef)
+    db.insert_record(TagSelfRef())
+
+    tag: TagSelfRef = db.select_record(TagSelfRef, 'id=1 AND parentId=-1')
+
+    assert(tag.parentId == -1)
+
+
 if __name__ == '__main__':
-    test_join_table()
+    test_create_junction_table()
 

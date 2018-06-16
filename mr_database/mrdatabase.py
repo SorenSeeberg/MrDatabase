@@ -9,7 +9,7 @@ from mr_database.databaseconnection import DatabaseConnection, ConType
 from mr_database.table import Table
 from mr_database.records import Records
 
-VERSION = '0.9.8'
+VERSION = '0.9.9'
 
 
 class LogLevel:
@@ -67,7 +67,7 @@ class MrDatabase:
 
             return False
 
-    def table_exists(self, table_class: Table.__subclasses__, con_type=ConType.mutation) -> bool:
+    def table_exists(self, table_class: Table.__subclasses__) -> bool:
 
         sql = f"SELECT count(*) FROM sqlite_master WHERE type='table' AND name='{table_class.get_table_name()}';"
 
