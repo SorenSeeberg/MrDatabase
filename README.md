@@ -106,7 +106,7 @@ The example above inserts 10.000 clones of a `Person()` record. It takes less th
 
 ### Setup a Many to Many Relationship
 
-As an example we have some images that can have some tags. This is a classic many to many relationship. To set it up you create the ´Image´ and the ´Tag´ table with no knowledge of eachother.
+As an example we have some images that can have some tags. This is a classic many to many relationship. To set it up you create the `Image` and the `Tag` table with no knowledge of or reference to eachother.
 
 ```Python
 class Image(Table):
