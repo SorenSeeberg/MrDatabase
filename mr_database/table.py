@@ -205,17 +205,17 @@ class Table:
 
         self.__join_tables__[key] = value
 
-    def fetch_join_tables(self, db_object: 'Database') -> None:
+    def fetch_join_tables(self, db_object: 'MrDatabase') -> None:
 
         [self.add_table_to_join_table_dict(join_table_name, self.select_join_record(db_object, join_table_name)) for join_table_name in self.__join_table_definitions__.keys()]
 
-    def select_join_record_all(self, db_object: 'Database') -> Tuple['Table']:
-        """ returning table objects for all join tables """
+    def select_join_record_all(self, db_object: 'MrDatabase') -> Tuple['Table']:
+        """ returning row objects for all join tables """
 
         return tuple((self.select_join_record(db_object, join_table_name) for join_table_name in self.__join_table_definitions__.keys()))
 
-    def select_join_record(self, db_object: 'Database', join_table_name: str) -> 'Table':
-        """ returning table object for a specific join tables """
+    def select_join_record(self, db_object: 'MrDatabase', join_table_name: str) -> 'Table':
+        """ returning row object for a specific join table """
 
         fk_table_info = self.__join_table_definitions__.get(join_table_name)
 
@@ -228,7 +228,7 @@ class Table:
         if value is None:
             return
 
-        condition = '%s=%s' % (fk_table_info.get('fk'), DataFormatting.value_to_string(column, value))
+        condition = f'{fk_table_info.get("fk")}={DataFormatting.value_to_string(column, value)}'
 
         return db_object.select_record(fk_table_info.get('table_class'), condition)
 
