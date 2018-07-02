@@ -1,4 +1,4 @@
-# MrDatabase v. 0.9.9
+# MrDatabase v. 0.9.10
 Databasing as easy as it gets! An ORM on top of SQLite3
 
 ## Simple Code Examples
@@ -150,6 +150,9 @@ class Tag(Table):
 ```
 
 # Release Notes
+
+### Version 0.9.10
+- Added beginning of PowerQuery for building custom sql statements
 
 ### Version 0.9.9
 - Added documentation of many to many relationships

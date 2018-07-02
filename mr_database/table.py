@@ -210,12 +210,12 @@ class Table:
         [self.add_table_to_join_table_dict(join_table_name, self.select_join_record(db_object, join_table_name)) for join_table_name in self.__join_table_definitions__.keys()]
 
     def select_join_record_all(self, db_object: 'MrDatabase') -> Tuple['Table']:
-        """ returning row objects for all join tables """
+        """ returning records for all join tables """
 
         return tuple((self.select_join_record(db_object, join_table_name) for join_table_name in self.__join_table_definitions__.keys()))
 
     def select_join_record(self, db_object: 'MrDatabase', join_table_name: str) -> 'Table':
-        """ returning row object for a specific join table """
+        """ returning record for a specific join table """
 
         fk_table_info = self.__join_table_definitions__.get(join_table_name)
 
