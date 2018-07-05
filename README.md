@@ -152,6 +152,9 @@ class Tag(Table):
 # Release Notes
 
 ### Version 0.9.10
+- Added ORDER BY to PowerQuery
+
+### Version 0.9.10
 - Added beginning of PowerQuery for building custom sql statements
 
 ### Version 0.9.9

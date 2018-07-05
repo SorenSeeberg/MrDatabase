@@ -9,14 +9,12 @@ AttribName = Union[str, 'Column']
 
 
 class City(Table):
-
     id = Column(DataTypes.integer, pk=True)
     postalCode = Column(DataTypes.smallint, default=9999, display_name='Postal Code')
     cityName = Column(DataTypes.varchar(40), default='New York', display_name='City Name')
 
 
 class Person(Table):
-
     id = Column(DataTypes.integer, pk=True)
     firstName = Column(DataTypes.varchar(40))
     lastName = Column(DataTypes.varchar(40))
@@ -28,14 +26,20 @@ class PowerQuery:
     def __init__(self):
         self.action_queue = list()
 
+    @staticmethod
+    def __resolve_input__(value) -> str:
+        if not isinstance(value, str):
+            return value.get_table_name()
+
+        return value
+
     def SELECT(self, attributes):
         self.action_queue.append(f'SELECT {", ".join(attributes)}')
         return self
 
     def FROM(self, table_name: TableName):
-        if not isinstance(table_name, str):
-            table_name: str = table_name.get_table_name()
-        self.action_queue.append(f'table_name {table_name}')
+
+        self.action_queue.append(f'FROM {self.__resolve_input__(table_name)}')
         return self
 
     def WHERE(self):
@@ -45,6 +49,22 @@ class PowerQuery:
     def LIKE(self, attribute: str, compare_string: str):
         self.action_queue.append(f'{attribute} LIKE \'{compare_string}\'')
         return self
+
+    def ORDER(self, *order_clauses: str):
+        self.action_queue.append(f'ORDER BY {", ".join(order_clauses)}')
+        return self
+
+    @staticmethod
+    def ASC(column_name: str) -> str:
+        return PowerQuery.__sort_order__('ASC', column_name)
+
+    @staticmethod
+    def DESC(column_name: str) -> str:
+        return PowerQuery.__sort_order__('DESC', column_name)
+
+    @staticmethod
+    def __sort_order__(sort_order: str, column_name: str) -> str:
+        return f'{column_name} {sort_order}'
 
     def AND(self):
         self.action_queue.append('AND')
@@ -64,17 +84,10 @@ class PowerQuery:
                    target_table: TableName,
                    target_attrib: AttribName):
 
-        if not isinstance(source_table, str):
-            source_table: str = source_table.get_table_name()
-
-        if not isinstance(source_attrib, str):
-            source_attrib: str = source_attrib
-
-        if not isinstance(target_table, str):
-            target_table: str = target_table.get_table_name()
-
-        if not isinstance(target_attrib, str):
-            target_attrib: str = target_attrib
+        source_table: str = self.__resolve_input__(source_table)
+        source_attrib: str = self.__resolve_input__(source_attrib)
+        target_table: str = self.__resolve_input__(target_table)
+        target_attrib: str = self.__resolve_input__(target_attrib)
 
         self.action_queue.append(
             f'INNER JOIN {target_table} ON {target_table}.{target_attrib} = {source_table}.{source_attrib}')
@@ -95,6 +108,8 @@ class PowerQuery:
 if __name__ == '__main__':
     query1 = PowerQuery().SELECT(['id', 'name']).FROM('Person').WHERE().expression('id > 10').AND().LIKE('name', 'john')
     query2 = PowerQuery().SELECT(['id', 'name']).FROM(Person).INNER_JOIN(Person, 'cityId', City, 'id')
+    query3 = PowerQuery().SELECT(['id', 'name']).FROM(Person).ORDER(PowerQuery.ASC('id'), PowerQuery.DESC('name'))
 
     print(query1)
     print(query2)
+    print(query3)
