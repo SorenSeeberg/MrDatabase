@@ -1,4 +1,4 @@
-# MrDatabase v. 0.9.10
+# MrDatabase v. 0.9.12
 Databasing as easy as it gets! An ORM on top of SQLite3
 
 ## Simple Code Examples
@@ -151,7 +151,12 @@ class Tag(Table):
 
 # Release Notes
 
-### Version 0.9.10
+### Version 0.9.12
+- Rename PowerQuery (taken by microsoft) to Inquisitor
+- Moved early Inquisitor testing code into tests.inquisitor_tests.py
+- Added some regular expression filtering on LIKE input
+
+### Version 0.9.11
 - Added ORDER BY to PowerQuery
 
 ### Version 0.9.10
