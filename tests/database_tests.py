@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from mr_database import MrDatabase
+from mr_database import MrDatabase, Records
 from mr_database import DatabaseConnection
 from mr_database import ConType
 from mr_database import Table
@@ -70,7 +70,7 @@ def delete_database():
 def test_database_creation():
     delete_database()
 
-    db = MrDatabase(DB_PATH)
+    db: MrDatabase = MrDatabase(DB_PATH)
     db.create_table(City)
     db.drop_table(City)
 
@@ -80,8 +80,8 @@ def test_database_creation():
 def test_create_table():
     delete_database()
 
-    db = MrDatabase(DB_PATH)
-    success = db.create_table(City)
+    db: MrDatabase = MrDatabase(DB_PATH)
+    success: bool = db.create_table(City)
 
     assert (success is True)
 
@@ -89,9 +89,9 @@ def test_create_table():
 def test_drop_table():
     delete_database()
 
-    db = MrDatabase(DB_PATH)
+    db: MrDatabase = MrDatabase(DB_PATH)
     db.create_table(City)
-    success = db.drop_table(City)
+    success: bool = db.drop_table(City)
 
     assert (success is True)
 
@@ -99,8 +99,8 @@ def test_drop_table():
 def test_table_not_exists():
     delete_database()
 
-    db = MrDatabase(DB_PATH)
-    table_exists = db.table_exists(City)
+    db: MrDatabase = MrDatabase(DB_PATH)
+    table_exists: bool = db.table_exists(City)
 
     assert (table_exists is False)
 
@@ -108,9 +108,9 @@ def test_table_not_exists():
 def test_table_exists():
     delete_database()
 
-    db = MrDatabase(DB_PATH)
+    db: MrDatabase = MrDatabase(DB_PATH)
     db.create_table(City)
-    table_exists = db.table_exists(City)
+    table_exists: bool = db.table_exists(City)
 
     assert (table_exists is True)
 
@@ -118,12 +118,12 @@ def test_table_exists():
 def test_insert_row():
     delete_database()
 
-    db = MrDatabase(DB_PATH)
+    db: MrDatabase = MrDatabase(DB_PATH)
     db.create_table(City)
     city1 = City()
     db.insert_record(city1)
 
-    city2 = db.select_records(City)
+    city2: Records = db.select_records(City)
 
     assert (city2[0].id == 1)
 
@@ -131,13 +131,13 @@ def test_insert_row():
 def test_delete_row():
     delete_database()
 
-    db = MrDatabase(DB_PATH)
+    db: MrDatabase = MrDatabase(DB_PATH)
     db.create_table(City)
     db.insert_record(City())
 
     id_condition = 'id=1'
 
-    city_record = db.select_record(City, id_condition)
+    city_record: City = db.select_record(City, id_condition)
     record_deleted = False
 
     if city_record.id == 1:
@@ -154,7 +154,7 @@ def test_delete_row():
 def test_batch_insert_records():
     delete_database()
 
-    db = MrDatabase(DB_PATH)
+    db: MrDatabase = MrDatabase(DB_PATH)
 
     db.create_table(City)
     city_1 = City()
@@ -172,7 +172,7 @@ def test_batch_insert_records():
 
 def test_batch_update_records():
     delete_database()
-    db = MrDatabase(DB_PATH)
+    db: MrDatabase = MrDatabase(DB_PATH)
     db.create_table(City)
     city_1 = City()
 
@@ -206,7 +206,7 @@ def test_clone_record():
 def test_join_table():
     delete_database()
 
-    db = MrDatabase(DB_PATH)
+    db: MrDatabase = MrDatabase(DB_PATH)
 
     db.create_table(City)
     db.create_table(Person)
@@ -228,7 +228,7 @@ def test_join_table():
 def test_create_junction_table():
     delete_database()
 
-    db = MrDatabase(DB_PATH)
+    db: MrDatabase = MrDatabase(DB_PATH)
 
     db.create_table(Image)
     db.create_table(Tag)
@@ -251,7 +251,7 @@ def test_create_junction_table():
 def test_create_self_referencing_table():
     delete_database()
 
-    db = MrDatabase(DB_PATH)
+    db: MrDatabase = MrDatabase(DB_PATH)
 
     db.create_table(TagSelfRef)
     db.insert_record(TagSelfRef())

@@ -1,2 +1,3 @@
 pytest
 pyside2
+http://download.qt.io/snapshots/ci/pyside/5.11/latest/pyside2/PySide2-5.11.0a1.dev1525359714-5.11.0-cp36-cp36m-win_amd64.whl

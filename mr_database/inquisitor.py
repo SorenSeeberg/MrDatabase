@@ -4,7 +4,7 @@ import re
 TableName = Union[str, 'Table.__subclasses__()']
 AttribName = Union[str, 'Column']
 
-like_pattern = re.compile('\A[A-Za-z0-9_%/]+\Z')
+like_pattern = re.compile('\\A[A-Za-z0-9_%/]+\\Z')
 like_chars_pattern = re.compile('[^A-Za-z0-9_%/]+')
 
 
@@ -20,20 +20,26 @@ class Inquisitor:
 
         return value
 
-    def SELECT(self, attributes):
+    def __repr__(self) -> str:
+        return '\n'.join(self.sql_fragments) + ';\n'
+
+    def __str__(self) -> str:
+        return '\n'.join(self.sql_fragments) + ';\n'
+
+    def SELECT(self, attributes) -> 'Inquisitor':
         self.sql_fragments.append(f'SELECT {", ".join(attributes)}')
         return self
 
-    def FROM(self, table_name: TableName):
+    def FROM(self, table_name: TableName) -> 'Inquisitor':
 
         self.sql_fragments.append(f'FROM {self.__resolve_input__(table_name)}')
         return self
 
-    def WHERE(self):
+    def WHERE(self) -> 'Inquisitor':
         self.sql_fragments.append('WHERE')
         return self
 
-    def LIKE(self, attribute: str, compare_string: str):
+    def LIKE(self, attribute: str, compare_string: str) -> 'Inquisitor':
 
         if not re.search(like_pattern, compare_string):
             compare_string = like_chars_pattern.sub('', compare_string)
@@ -41,7 +47,7 @@ class Inquisitor:
         self.sql_fragments.append(f'{attribute} LIKE \'{compare_string}\'')
         return self
 
-    def ORDER(self, *order_clauses: str):
+    def ORDER(self, *order_clauses: str) -> 'Inquisitor':
         self.sql_fragments.append(f'ORDER BY {", ".join(order_clauses)}')
         return self
 
@@ -57,15 +63,15 @@ class Inquisitor:
     def __sort_order__(sort_order: str, column_name: str) -> str:
         return f'{column_name} {sort_order}'
 
-    def AND(self):
+    def AND(self) -> 'Inquisitor':
         self.sql_fragments.append('AND')
         return self
 
-    def OR(self):
+    def OR(self) -> 'Inquisitor':
         self.sql_fragments.append('OR')
         return self
 
-    def NOT(self):
+    def NOT(self) -> 'Inquisitor':
         self.sql_fragments.append('NOT')
         return self
 
@@ -89,8 +95,4 @@ class Inquisitor:
         self.sql_fragments.append(exp)
         return self
 
-    def __compile__(self) -> str:
-        return f'{" ".join(self.sql_fragments)};'
 
-    def __repr__(self) -> str:
-        return '\n'.join(self.sql_fragments) + ';\n'
